@@ -3,8 +3,8 @@
  * RallySportED memory manager
  *
  * A basic memory manager. Allocates a bunch of memory on initialization, then doles
- * it out to callers in small chunks afterwards. Useful to prevent fragmentation and
- * to see how memory is being used by the program, though a limited implementation.
+ * it out to callers in small sequential chunks afterwards. Useful to prevent fragmentation
+ * and to see how memory is being used by the program, though a limited implementation.
  *
  * Generally, you might access the memory manager through an interface wrapper rather
  * than directly.
@@ -26,15 +26,26 @@
  *
  */
 
+// A single allocation from the memory cache.
+struct mem_allocation_s
+{
+    char reason[64];    // For what purpose the memory was needed.
+    const void *memory;
+    uint numBytes;
+    bool isInUse;       // Set to false if the owner asks the memory manager to release the memory.
+    bool isReused;      // Whether this allocation used to belong to someone else who since had it released.
+};
+
 static int TOTAL_BYTES_ALLOCATED = 0;
 static int TOTAL_BYTES_RELEASED = 0;
 
-static mem_allocation_s ALLOC_TABLE[1024];
-
-static uint MEMORY_CACHE_SIZE = 1 * 1024 * 1024;   // In bytes.
-
+static uint MEMORY_CACHE_SIZE = 1/*MB*/ * 1024 * 1024;   // In bytes.
 static u8 *MEMORY_CACHE = NULL;
-static u8 *NEXT_FREE = NULL;
+static u8 *NEXT_FREE = NULL;    // A pointer to the next free byte in the memory cache (allocations from the cache are made sequentially).
+
+// Each allocation requested is logged into the allocation table.
+static const uint NUM_ALLOC_TABLE_ELEMENTS = 512;
+static mem_allocation_s *ALLOC_TABLE = NULL;
 
 // Set to 1 to disallow any further allocations from the cache.
 static uint CACHE_ALLOC_LOCKED = 0;
@@ -46,16 +57,25 @@ static void initialize_cache(void)
     // Ideally, we'll only call this function once.
     k_assert(MEMORY_CACHE == NULL, "Calling the memory manager initializer with a non-null memory cache.");
 
-    static_assert(std::is_same<decltype(MEMORY_CACHE), u8*>::value &&
-                  sizeof(u8) == 1, "Expected the memory cache to be u8*.");
-    MEMORY_CACHE = (u8*)calloc(MEMORY_CACHE_SIZE, 1);
-    k_assert(MEMORY_CACHE != NULL, "The memory manager failed to initialize.")
-
+    static_assert(std::is_same<decltype(MEMORY_CACHE), u8*>::value && (sizeof(u8) == 1), "Expected the memory cache to be u8*.");
+    MEMORY_CACHE = (u8*)calloc(MEMORY_CACHE_SIZE, 1); // Expect to use calloc(), for a cleared-out block.
     NEXT_FREE = MEMORY_CACHE;
+    k_assert(MEMORY_CACHE != NULL, "The memory manager failed to initialize.");
+
+    // Use the beginning of the memory cache for the allocation table.
+    k_assert((ALLOC_TABLE == NULL), "Expected a null allocation table.");
+    const uint allocTableByteSize = (NUM_ALLOC_TABLE_ELEMENTS * sizeof(mem_allocation_s));
+    k_assert((allocTableByteSize < MEMORY_CACHE_SIZE), "Not enough room in the memory cache for the allocation table.");
+    ALLOC_TABLE = (mem_allocation_s*)MEMORY_CACHE;
+    TOTAL_BYTES_ALLOCATED += allocTableByteSize;
+    NEXT_FREE += allocTableByteSize;
 
     return;
 }
 
+// Will return a valid pointer to a zero-initialized block of memory of the given
+// size; or trips an assert if can't.
+//
 void* kmem_allocate(const int numBytes, const char *const reason)
 {
     k_assert(!CACHE_ALLOC_LOCKED, "Memory allocations are locked, can't add new ones.");
@@ -69,10 +89,7 @@ void* kmem_allocate(const int numBytes, const char *const reason)
     }
 
     k_assert(NEXT_FREE != NULL, "Didn't have a valid free slot in the memory cache for a new allocation.");
-    const u8 *mem = NEXT_FREE;
-
-    k_assert((mem + numBytes) < (MEMORY_CACHE + MEMORY_CACHE_SIZE),
-             "Memory allocation would overflow the memory cache size. The cache needs to be made larger.");
+    u8 *const mem = NEXT_FREE;
 
     // Find a free spot in the allocation table.
     uint tableIdx = 0;
@@ -82,14 +99,14 @@ void* kmem_allocate(const int numBytes, const char *const reason)
         // Take the first unallocated entry. These will always be at the end of
         // the allocation chain, since past allocations are never cleared until
         // the program exits.
-        if (ALLOC_TABLE[tableIdx].alloc == NULL)
+        if (ALLOC_TABLE[tableIdx].memory == NULL)
         {
             break;
         }
 
         // But also, if there's a released entry of just the right size, we can
         // take that one instead.
-        if (ALLOC_TABLE[tableIdx].isUnused &&
+        if (!ALLOC_TABLE[tableIdx].isInUse &&
             ALLOC_TABLE[tableIdx].numBytes == uint(numBytes))
         {
             useOldEntry = true;
@@ -97,7 +114,7 @@ void* kmem_allocate(const int numBytes, const char *const reason)
         }
 
         tableIdx++;
-        k_assert(tableIdx < NUM_ELEMENTS(ALLOC_TABLE),
+        k_assert(tableIdx < NUM_ALLOC_TABLE_ELEMENTS,
                  "Memory manager overflowed while looking for room for an allocation.");
     }
 
@@ -114,11 +131,15 @@ void* kmem_allocate(const int numBytes, const char *const reason)
     k_assert(strlen(reason) < NUM_ELEMENTS(ALLOC_TABLE[tableIdx].reason),
              "The reason given for an allocation was too long to fit into the string array.");
     strcpy(ALLOC_TABLE[tableIdx].reason, reason);
-    ALLOC_TABLE[tableIdx].alloc = mem;
+    ALLOC_TABLE[tableIdx].memory = mem;
     ALLOC_TABLE[tableIdx].numBytes = numBytes;
-    ALLOC_TABLE[tableIdx].isUnused = false;
+    ALLOC_TABLE[tableIdx].isInUse = true;
 
+    // Validate the memory before sending it off.
+    k_assert((mem + numBytes) < (MEMORY_CACHE + MEMORY_CACHE_SIZE),
+             "Memory allocation would overflow the memory cache size. The cache needs to be made larger.");
     k_assert(mem != NULL, "Detected a null return from the memory manager allocator. This should not be the case.");
+    memset(mem, 0, numBytes);
 
     return (void*)mem;
 }
@@ -126,10 +147,10 @@ void* kmem_allocate(const int numBytes, const char *const reason)
 static uint alloc_table_index_of_pointer(const void *const mem)
 {
     uint tableIDx = 0;
-    while (ALLOC_TABLE[tableIDx].alloc != mem)
+    while (ALLOC_TABLE[tableIDx].memory != mem)
     {
         tableIDx++;
-        if (tableIDx >= NUM_ELEMENTS(ALLOC_TABLE))
+        if (tableIDx >= NUM_ALLOC_TABLE_ELEMENTS)
         {
             k_assert(0, "Couldn't find the requested allocation in the allocation table.");
             goto bail;
@@ -158,8 +179,8 @@ uint kmem_sizeof_allocation(const void *const mem)
     return ALLOC_TABLE[idx].numBytes;
 }
 
-// Mark the given pointer as NULL. Internally, we still retain its pointer and
-// will deallocate its memory at the end of the program.
+// Mark the given pointer as NULL. Internally, we still retain its pointer for
+// for possible reuse, and will deallocate its memory at the end of the program.
 //
 void kmem_release(void **mem)
 {
@@ -175,13 +196,13 @@ void kmem_release(void **mem)
     const uint idx = alloc_table_index_of_pointer(*mem);
 
     // Warn of double deletes.
-    if (ALLOC_TABLE[idx].isUnused)
+    if (!ALLOC_TABLE[idx].isInUse)
     {
         ERRORI(("Asked to double-delete memory at %p (%s).", *mem, ALLOC_TABLE[idx].reason));
         k_assert(0, "Double-deleting memory.");
     }
 
-    ALLOC_TABLE[idx].isUnused = true;
+    ALLOC_TABLE[idx].isInUse = false;
 
     if (!ALLOC_TABLE[idx].isReused)
     {
@@ -214,7 +235,7 @@ void kmem_deallocate_memory_cache(void)
         DEBUG(("Released:\t%d KB", (TOTAL_BYTES_RELEASED / 1024)));
         DEBUG(("Balance:\t%d bytes", (TOTAL_BYTES_ALLOCATED - TOTAL_BYTES_RELEASED)));
 
-       /* for (uint i = 0; i < NUM_ELEMENTS(ALLOC_TABLE); i++)
+       /* for (uint i = 0; i < NUM_ALLOC_TABLE_ELEMENTS; i++)
         {
             if ((ALLOC_TABLE[i].alloc != NULL) &&
                 !ALLOC_TABLE[i].isUnused)

@@ -10,18 +10,9 @@
 #include <string>
 #include "types.h"
 
-struct mem_allocation_s
-{
-    char reason[64];
-    const void *alloc = nullptr;
-    uint numBytes = 0;
-    bool isUnused = true;
-    bool isReused = false;
-};
-
 void kmem_lock_cache_alloc(void);
 
-void* kmem_allocate(const int numBytes, const char * const reason);
+void* kmem_allocate(const int numBytes, const char *const reason);
 
 void kmem_release(void **mem);
 
