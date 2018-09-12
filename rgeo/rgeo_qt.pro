@@ -9,9 +9,9 @@ TEMPLATE = app
 CONFIG += console c++11
 TARGET = rgeo_linux
 
-OBJECTS_DIR = ../.other/generated_files
-MOC_DIR = ../.other/generated_files
-UI_DIR = ../.other/generated_files
+OBJECTS_DIR = generated_files
+MOC_DIR = generated_files
+UI_DIR = generated_files
 
 SOURCES += \
     src/core/file/file.cpp \
