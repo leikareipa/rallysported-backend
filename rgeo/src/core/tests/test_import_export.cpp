@@ -81,7 +81,7 @@ static void initialize_rgeo(const reference_container_c &refProject)
 {
     DEBUG(("Initializing RGEO..."));
 
-    kge_acquire_read_access_to_game_executables("RALLYE.EXE", "VALIKKO.EXE");
+    kge_acquire_access_to_game_executables("RALLYE.EXE", "VALIKKO.EXE");
     kprop_initialize_props();
     kmanif_apply_manifesto(project_file_name("$FT").c_str(), kge_file_handle_rallye_exe());
 

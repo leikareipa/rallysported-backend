@@ -44,13 +44,12 @@ static void initialize_all(void)
                              };
 
     // Hardcoded data.
-    kge_acquire_read_access_to_game_executables("RALLYE.EXE", "VALIKKO.EXE");
-    kprop_initialize_props(); // Must be called after game executables are opened for access but before the manifesto is applied.
+    kge_acquire_access_to_game_executables("RALLYE.EXE", "VALIKKO.EXE");
     kmanif_apply_manifesto(project_file_name("$FT").c_str(), kge_file_handle_rallye_exe());
+    kpal_initialize_palettes();
 
     // Display and rendering.
     kd_acquire_display();
-    kpal_initialize_palettes();
     kr_acquire_renderer();
     kg_initialize_geometry();
 
@@ -63,6 +62,7 @@ static void initialize_all(void)
     const file_handle_t projFile = kfile_open_file(project_file_name("DTA").c_str(), "rb+");
     kmaasto_initialize_maasto(projFile, kmanif_track_idx());
     kpalat_initialize_palat(projFile);
+    kprop_initialize_props();
 
     kuil_initialize_ui_layout(); // Should be called only after loading all assets, since may depend on some of them.
 

@@ -11,6 +11,7 @@
 #include "../../core/game_exe.h"
 #include "../../core/display.h"
 #include "../../core/common.h"
+#include "../../core/props.h"
 #include "../../core/file.h"
 #include "../../core/main.h"
 
@@ -290,7 +291,7 @@ u32 kge_game_exe_offset(const exe_id_e exe, const exe_offset_e offsType, const u
 
 // Open the game's executables for read access.
 //
-void kge_acquire_read_access_to_game_executables(const char *const fnRallye,
+void kge_acquire_access_to_game_executables(const char *const fnRallye,
                                                  const char *const fnValikko)
 {
     const file_handle_t fhOrigRallye = kfile_open_file(fnRallye, "rb");
@@ -318,6 +319,51 @@ void kge_release_game_executables(void)
 
     kfile_close_file(FH_RALLYE_EXE);
     kfile_close_file(FH_VALIKKO_EXE);
+
+    return;
+}
+
+// Convert the given prop id into a set of four bytes that can be written as-is
+// into the game's executables to mark this prop type.
+//
+void kge_prop_id_string(u8 *const str, const u8 propIdx)
+{
+    const uint strLen = 4;
+
+    auto prop_id_bytes = [=](const prop_id_e propId)
+                         {
+                             static u8 str[strLen];
+                             str[0] = u8((propId >> 16) & 0xff);
+                             str[1] = u8((propId >> 24) & 0xff);
+                             str[2] = u8((propId >>  0) & 0xff);
+                             str[3] = u8((propId >>  8) & 0xff);
+                             return str;
+                         };
+
+    const u8 *src = nullptr;
+    switch (propIdx)
+    {
+        case 1:  { src = prop_id_bytes(PROP_TREE); break; }
+        case 2:  { src = prop_id_bytes(PROP_WIRE_FENCE); break; }
+        case 3:  { src = prop_id_bytes(PROP_HORSE_FENCE); break; }
+        case 4:  { src = prop_id_bytes(PROP_TRAFFIC_SIGN_80); break; }
+        case 5:  { src = prop_id_bytes(PROP_TRAFFIC_SIGN_EXCLAMATION); break; }
+        case 6:  { src = prop_id_bytes(PROP_STONE_ARCH); break; }
+        case 7:  { src = prop_id_bytes(PROP_STONE_POST); break; }
+        case 8:  { src = prop_id_bytes(PROP_LARGE_ROCK); break; }
+        case 9:  { src = prop_id_bytes(PROP_SMALL_ROCK); break; }
+        case 10: { src = prop_id_bytes(PROP_LARGE_BILLBOARD); break; }
+        case 11: { src = prop_id_bytes(PROP_SMALL_BILLBOARD); break; }
+        case 12: { src = prop_id_bytes(PROP_BUILDING); break; }
+        case 13: { src = prop_id_bytes(PROP_UTIL_POLE_1); break; }
+        case 14: { src = prop_id_bytes(PROP_UTIL_POLE_2); break; }
+        case 15: { src = prop_id_bytes(PROP_STARTING_LINE); break; }
+        case 16: { src = prop_id_bytes(PROP_STONE_STARTING_LINE); break; }
+
+        default: { k_assert(0, "Failed to find a suitable prop for the given index."); break; }
+    }
+
+    memcpy(str, src, strLen);
 
     return;
 }

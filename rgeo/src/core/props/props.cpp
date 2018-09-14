@@ -83,24 +83,6 @@ uint kprop_prop_idx_for_type(const prop_id_e propType)
     return 0;
 }
 
-// Returns the given prop's type value as a 4-byte u8 string, for writing
-// directly into Rally-Sport's binaries. Note that this takes the index of
-// the prop as 1-based, where an index of 1 is the first prop.
-//
-void kprop_prop_bytestring_for_idx(u8 *const str, const uint idx)
-{
-    const auto prop = PROPS->at(idx - 1);
-    const u32 typeVal = (u32)prop.first;
-    const u8 typeStr[4] = {u8((typeVal >> 16) & 0x000000ff),
-                           u8((typeVal >> 24) & 0x000000ff),
-                           u8((typeVal >>  0) & 0x000000ff),
-                           u8((typeVal >>  8) & 0x000000ff)};
-
-    memcpy(str, typeStr, NUM_ELEMENTS(typeStr));
-
-    return;
-}
-
 static const std::vector<triangle_s>* prop_mesh_for_type(const prop_id_e propType)
 {
     for (const auto &prop: (*PROPS))

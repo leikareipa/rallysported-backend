@@ -47,8 +47,6 @@ prop_id_e kprop_random_prop(void);
 
 uint kprop_prop_idx_for_type(const prop_id_e propType);
 
-void kprop_prop_bytestring_for_idx(u8 *const str, const uint idx);
-
 void kprop_initialize_props(void);
 
 void kprop_release_props(void);

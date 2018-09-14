@@ -20,7 +20,6 @@
 #include "../../core/display.h"
 #include "../../core/palette.h"
 #include "../../core/common.h"
-#include "../../core/props.h"
 #include "../../core/file.h"
 
 /*
@@ -373,7 +372,7 @@ bool kmanif_apply_manifesto(const char *const manifestoFilename,
             }
 
             u8 newObj[RALLYE_NUM_BYTES_IN_PROP_BLOCK];
-            kprop_prop_bytestring_for_idx(newObj, (u8)cmdParams[1]);
+            kge_prop_id_string(newObj, (u8)cmdParams[1]);
 
             newObj[6] = cmdParams[4];
             newObj[7] = cmdParams[2];
@@ -430,7 +429,7 @@ bool kmanif_apply_manifesto(const char *const manifestoFilename,
             kfile_read_byte_array(o, RALLYE_NUM_BYTES_IN_PROP_BLOCK, targetFh);
 
             // Change the type-relevant bytes in the header to get the desired prop type.
-            kprop_prop_bytestring_for_idx(o, cmdParams[2]);
+            kge_prop_id_string(o, cmdParams[2]);
             kfile_seek(offs, targetFh);
             kfile_write_byte_array(o, RALLYE_NUM_BYTES_IN_PROP_BLOCK, targetFh);
         }

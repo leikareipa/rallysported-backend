@@ -34,7 +34,9 @@ enum exe_offset_e
     GE_OFFS_PROP_TEXTURE_UVS      // 3d track object textures' uv coordinates for TEXT1.DTA.
 };
 
-void kge_acquire_read_access_to_game_executables(const char * const fnRallye, const char * const fnValikko);
+void kge_acquire_access_to_game_executables(const char * const fnRallye, const char * const fnValikko);
+
+void kge_prop_id_string(u8 *const str, const u8 propIdx);
 
 file_handle_t kge_file_handle_rallye_exe(void);
 
