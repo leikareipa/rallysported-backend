@@ -28,4 +28,4 @@ Generally  speaking, you may need the fasm assembler for RLOAD, RTEX, and RAI; a
 ### A note on RallySportED's retro roots
 RallySportED generally prefers to revel in the retro nature of DOS gaming; and the code will often express a desire to keep the needs of older architectures in mind, in addition to more modern ones.
 
-![A screenshot of RallySportED](http://tarpeeksihyvaesoft.com/soft/img/rsed2_s.png)
+![A screenshot of RallySportED](http://tarpeeksihyvaesoft.com/soft/img/rsed2_b.png)
