@@ -23,8 +23,8 @@
  *
  */
 
-static const vector3<int> INITIAL_CAMERA_POS = {-1664, -725, 4400};///y -680
-static const vector3<int> INITIAL_CAMERA_DIR = {-2100, 0, 0};///-x 1968
+static const vector3<int> INITIAL_CAMERA_POS = {-1664, -760, 4400};///y -680
+static const vector3<int> INITIAL_CAMERA_DIR = {-2500, 0, 0};///-x 1968
 
 static vector3<int> CAMERA_POS = INITIAL_CAMERA_POS;
 static vector3<int> CAMERA_DIR = INITIAL_CAMERA_DIR;
@@ -134,7 +134,7 @@ matrix44_s kcamera_position_matrix(void)
 {
     matrix44_s pm;
 
-    g_make_transl_mat(&pm, CAMERA_POS.x, CAMERA_POS.y, CAMERA_POS.z - (IS_TOPDOWN? 150 : 0));
+    g_make_transl_mat(&pm, CAMERA_POS.x, CAMERA_POS.y, CAMERA_POS.z - (IS_TOPDOWN? 150 : 40));
 
     return pm;
 }
