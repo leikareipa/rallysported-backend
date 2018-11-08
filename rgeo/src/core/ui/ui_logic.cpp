@@ -180,8 +180,8 @@ static void process_mouse_movement(void)
         !kui_texedit_view_is_open())
     {
         const uint msSinceLastFrame = kftimer_elapsed();
-        const real moveSpeedX = 1.4 * (msSinceLastFrame > 1000? 0 : msSinceLastFrame);    // <- Try to prevent overflow of the movement by clipping the timer.
-        const real moveSpeedY = (kcamera_is_topdown()? 1.4 : 2.4) * (msSinceLastFrame > 1000? 0 : msSinceLastFrame);
+        const real moveSpeedX = 1.9 * (msSinceLastFrame > 1000? 0 : msSinceLastFrame);    // <- Try to prevent overflow of the movement by clipping the timer.
+        const real moveSpeedY = (kcamera_is_topdown()? 1.9 : 2.9) * (msSinceLastFrame > 1000? 0 : msSinceLastFrame);
         const int screenMargin = 7;
 
         // If the cursor is at the edges of the screen, move the camera in the
