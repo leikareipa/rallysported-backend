@@ -561,7 +561,8 @@ static void add_bottom_info_text(std::vector<triangle_s> *const scene)
 
     kuil_render_string(stringBuf, 4, 192, scene);
 
-    if (kui_is_real_water_level_enabled())
+    if (kui_is_real_water_level_enabled() &&
+        !kui_texedit_view_is_open()) // <- If the texedit view is open, the string would obsure parts of the interactible UI.
     {
         kuil_render_string("REAL WATER HEIGHT", 233, 192, scene);
     }
