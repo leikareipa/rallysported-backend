@@ -39,7 +39,7 @@
 
 DISCLAIMER:
 
-	Rally-Sport is (c) 1996, 1997 Jukka J‰k‰l‰, who has not endorsed this document. The document
+	Rally-Sport is (c) 1996, 1997 Jukka J√§k√§l√§, who has not endorsed this document. The document
 	is (c) 2017-2018 Tarpeeksi Hyvae Soft.
 
 	THIS  DOCUMENT IS  PROVIDED "AS IS",  WITHOUT  WARRANTY  OF  ANY  KIND,  EXPRESS OR IMPLIED,
@@ -422,10 +422,10 @@ TABLE OF CONTENTS:
 |
 |		Structure:
 |		{
-|			W	 [pointer to the list of items on this track]
-|			W	 [pointer to a list of car starting positions?]
-|			W	 [track x size]
-|			W	 [track y size]
+|			W    [pointer to the list of items on this track]
+|			W    [pointer to a list of car starting positions?]
+|			W    [track x size]
+|			W    [track y size]
 |			B/ 8 [water level]
 |			B/ 9 (?)
 |			B/10 [palat id]
@@ -434,7 +434,7 @@ TABLE OF CONTENTS:
 |			B/13 [checkpoint x position]
 |			B/14 (?)
 |			B/15 [checkpoint y position]
-|			W	 (pointer to something?)
+|			W    (pointer to something?)
 |		}
 |
 |		The structure repeats 8 times, for the 8 tracks in the game's demo version.
