@@ -237,8 +237,8 @@ void kuil_update_palat_pane_texture(void)
             {
                 for (uint px = 0; px < palaWidth; px++)
                 {
-                    const uint palaIdx = px + (palaWidth - 1 - py) * palaWidth;
-                    const uint texIdx = ((x * palaHeight + px + 0) / 2) + ((y * palaHeight + py + 0) / 2) * PALAT_PANE_TEXTURE.width();
+                    const uint palaIdx = px + (palaHeight - 1 - py) * palaWidth;
+                    const uint texIdx = ((x * palaWidth + px) / 2) + ((y * palaHeight + py) / 2) * PALAT_PANE_TEXTURE.width();
 
                     PALAT_PANE_TEXTURE.pixels[texIdx] = tex->pixels[palaIdx];
                 }
