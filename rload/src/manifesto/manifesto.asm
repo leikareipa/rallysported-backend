@@ -73,8 +73,16 @@ Apply_Manifesto:
 
         .test_2:
         cmp al,2
-        jne .test_4
+        jne .test_3
         call Command_2_SET_NUM_OBJECTS
+        cmp al,0
+        je .exit_fail
+        jmp .do_next_command
+
+        .test_3:
+        cmp al,3
+        jne .test_4
+        call Command_3_ADD_OBJECT
         cmp al,0
         je .exit_fail
         jmp .do_next_command

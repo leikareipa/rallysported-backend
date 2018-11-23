@@ -210,9 +210,7 @@ Command_0_REQUIRE:
 Command_2_SET_NUM_OBJECTS:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; we expect 1 parameter + the command itself.
-    ; p1 = maasto id.
-    ; p2 = palat id.
-    ; p3 = rsed loader version required.
+    ; p1 = the new number of objects.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     cmp [manifesto_cmd_len],2
     je .param_num_is_good
@@ -292,6 +290,194 @@ Command_2_SET_NUM_OBJECTS:
     jmp .exit
 
     .exit:
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Adds a new object onto the track.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Command_3_ADD_OBJECT:
+    push si
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; we expect 5 parameters + the command itself.
+    ; p1 = object type.
+    ; p2 = tile x position.
+    ; p3 = tile y position.
+    ; p4 = local tile x position.
+    ; p5 = local tile y position.
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    cmp [manifesto_cmd_len],6
+    je .param_num_is_good
+    mov [err_manifesto_additional],err_manifesto_parameters
+    jmp .exit_fail
+    .param_num_is_good:
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; verify that the parameters are correct.
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    sub [manifesto_cmd+1],1                 ; convert object idx to 0-indexed.
+    js .param_range_is_bad
+    mov ah,byte [num_object_types]
+    cmp [manifesto_cmd+1],ah                ; make sure the object id doesn't point to an object that doesn't exist on this track.
+    jge .param_range_is_bad
+    test [manifesto_cmd+2],10000000b        ; see that the global x coordinate is within 0-127.
+    jnz .param_range_is_bad
+    test [manifesto_cmd+3],10000000b        ; see that the global y coordinate is within 0-127.
+    jnz .param_range_is_bad
+    jmp .param_range_is_good
+
+    .param_range_is_bad:
+    mov [err_manifesto_additional],err_manifesto_parameter_range
+    jmp .exit_fail
+
+    .param_range_is_good:
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; write the new object's header into the executable, at the end of the existing object block.
+    ; take note that we overwrite any existing data there, with the assumption that it's not program-critical
+    ; code but rather an object block for the next track (which we won't play while the loader runs, so its
+    ; data being overwritten shouldn't matter).
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; calculate the position of the given object type's header in the loader's lookup table.
+    mov al,[manifesto_cmd+1]
+    mov cl,6                                ; the number of bytes per object header.
+    mul cl
+    mov si,ax                               ; si is now the starting position for our object header.
+
+    ; get the desired object type's id string.
+    xor bx,bx
+    mov ecx,6
+    .type_string:
+        mov al,[object_header+si+bx]
+        mov [file_buffer+bx],al
+        inc bx
+        loop .type_string
+
+    ; set the object's position to the user-supplied coordinates.
+    mov al,[manifesto_cmd+4]                ; local x.
+    mov [file_buffer+6],al
+    mov al,[manifesto_cmd+2]                ; global x.
+    mov [file_buffer+7],al
+    mov al,[manifesto_cmd+5]                ; local y.
+    mov [file_buffer+8],al
+    mov al,[manifesto_cmd+3]                ; global y.
+    mov [file_buffer+9],al
+    mov word [file_buffer+10],word 0xffff   ; height.
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; write the new data into ~~LLYE.EXE.
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; find the last byte in this track's object block.
+    movzx ebx,[track_id]
+    lea di,[object_block_offs+(ebx*4)]      ; di = address in the block of offset addresses to the starting byte of this track's offset.
+    mov ebx,dword [di]                      ; ebx now points to the first byte in the game executable that defines the track's objects.
+    movzx di,[track_id]
+    movzx eax,[num_objects_on_track+di]     ; eax now gives the number of objects on this track.
+    mov cl,12                               ; the number of bytes in the object header.
+    mul cl
+    add ebx,eax                             ; ebx now points to the last byte in this track's object block.
+    mov dx,bx                               ; dx = lowest bits of the offset.
+    shr ebx,16
+    mov cx,bx                               ; cx = highest bits of the offset.
+    ; patch the object's new header into the executable.
+    mov bx,[fh_sb_rallye_exe]               ; file handle.
+    mov ax,4200h                            ; set to move file position, offset from the beginning.
+    int 21h                                 ; move file position.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
+    lea dx,[file_buffer]                    ; get the address to the target object type's header.
+    mov cx,12                               ; write 12 bytes, i.e. the entire object header.
+    mov ah,40h
+    int 21h                                 ; write the new maasto index.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; write the new data into ~~LIKKO.EXE.
+    ;;; FIXME: this doesn't work at the moment, so it's been disabled.
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; find the last byte in this track's object block.
+    movzx ebx,[track_id]
+    lea di,[object_block_offs_valikko+(ebx*4)] ; di = address in the block of offset addresses to the starting byte of this track's offset.
+    mov ebx,dword [di]                      ; ebx now points to the first byte in the game executable that defines the track's objects.
+    movzx di,[track_id]
+    movzx eax,[num_objects_on_track+di]     ; eax now gives the number of objects on this track.
+    mov cl,12                               ; the number of bytes in the object header.
+    mul cl
+    add ebx,eax                             ; ebx now points to the last byte in this track's object block.
+    mov dx,bx                               ; dx = lowest bits of the offset.
+    shr ebx,16
+    mov cx,bx                               ; cx = highest bits of the offset.
+    ; patch the object's new header into the executable.
+    mov bx,[fh_sb_valikko_exe]              ; file handle.
+    mov ax,4200h                            ; set to move file position, offset from the beginning.
+    int 21h                                 ; move file position.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
+    lea dx,[file_buffer]                    ; get the address to the target object type's header.
+    mov cx,12                               ; write 12 bytes, i.e. the entire object header.
+    mov ah,40h
+    ;int 21h                                 ; write the new maasto index.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; increase the track's object count by one.
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    movzx bx,[track_id]
+    mov al,[num_objects_on_track+bx]
+    inc al
+    cmp al,14                               ; make sure we're not adding too many new objects, seeing as how their data overwrites subsequent bytes in the executable.
+                                            ; FIXME: for the last track (#8) there may be room in the executable for only about six new objects.
+    jg .param_range_is_bad
+    mov [num_objects_on_track+bx], byte al
+
+    ; patch the count into ~~LLYE.EXE.
+    mov [file_buffer], byte al
+    movzx ebx,[track_id]
+    lea di,[object_block_offs+(ebx*4)]      ; di = address in the block of offset addresses to the starting byte of this track's offset.
+    mov ebx,dword [di]                      ; ebx now points to the first byte in the game executable that defines the track's objects.
+    sub ebx,2                               ; move to the byte which gives the total count of objects.
+    mov dx,bx                               ; dx = lowest bits of the offset.
+    shr ebx,16
+    mov cx,bx                               ; cx = highest bits of the offset.
+    mov bx,[fh_sb_rallye_exe]
+    mov ax,4200h                            ; set to move file position, offset from the beginning.
+    int 21h                                 ; move file position.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
+    mov dx,file_buffer
+    mov cx,1                                ; write 1 byte.
+    mov ah,40h
+    int 21h                                 ; write the new maasto index.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
+
+    ; patch the count into ~~LIKKO.EXE.
+    ;;; FIXME: this doesn't work at the moment, so it's been disabled.
+    movzx ebx,[track_id]
+    lea di,[object_block_offs_valikko+(ebx*4)] ; di = address in the block of offset addresses to the starting byte of this track's offset.
+    mov ebx,dword [di]                      ; ebx now points to the first byte in the game executable that defines the track's objects.
+    sub ebx,2                               ; move to the byte which gives the total count of objects.
+    mov dx,bx                               ; dx = lowest bits of the offset.
+    shr ebx,16
+    mov cx,bx                               ; cx = highest bits of the offset.
+    mov bx,[fh_sb_valikko_exe]
+    mov ax,4200h                            ; set to move file position, offset from the beginning.
+    int 21h                                 ; move file position.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
+    mov dx,file_buffer
+    mov cx,1                                ; write 1 byte.
+    mov ah,40h
+    ;int 21h                                 ; write the new maasto index.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
+
+    jmp .exit_success
+
+    .exit_fail:
+    mov al,0
+    jmp .exit
+
+    .exit_success:
+    mov al,1
+    jmp .exit
+
+    .exit:
+    pop si
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

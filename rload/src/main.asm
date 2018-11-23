@@ -11,7 +11,7 @@
 ; constants.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DEBUG_ENABLED               = 0             ; set to 1 to enable certain debug features.
-LOADER_MAJOR_VERSION        = 3             ; the loader's major version number. this will be matched against the version required by the given track.
+LOADER_MAJOR_VERSION        = 4             ; the loader's major version number. this will be matched against the version required by the given track.
 BASE_MEM_REQUIRED           = 80            ; how much base memory (KB) the program needs. if the user has less, the program exits.
 MAX_MANIFESTO_PARAMS        = 10            ; how many parameters (counting the command itself) a manifesto command line can have.
 FILE_BUFFER_SIZE            = 53248         ; the size of the file buffer (in bytes), used when relocating disk data.
@@ -268,6 +268,7 @@ segment @BASE_DATA
     ; track info.
     track_id db 0                               ; which track we have (0-7).
     palat_id db 0                               ; which palat file we use (0-1).
+    num_object_types db 16                      ; how many different objects (3d track props) there are in the game.
     num_objects_on_track db 11,1,4,14,2,1,13,12 ; how many objects there are on the given track (tracks 0-7).
     track_palette_id db 0,0,0,0,1,2,0,3         ; which of the game's four palettes the given track uses.
     palette_offset dd 202d6h,20336h,20396h,203f6h            ; the byte offset at which the xth palette begins in RALLYE.EXE.
@@ -339,10 +340,9 @@ segment @BASE_DATA
     err_bad_cmd_line db "ERROR: Malformed command line argument. Exiting.",0ah,0dh,"$"
 
     ; info messages.
-    str_cmd_argument_info db "RallySportED Loader v.3 / October 2017.",0ah,0dh
-                          db "Expected command line usage: rsed_ldr <track name>",0ah,0dh
-                          db "The track name can be of up to eight ASCII characters from A-Z.",0ah,0dh
-                          db "If you received this error from a .bat file, make sure you provided it with a",0ah,0dh,"valid track name.",0ah,0dh,"$"
+    str_cmd_argument_info db "RallySportED Loader v4 by Tarpeeksi Hyvae Soft.",0ah,0dh
+                          db "Expected command-line parameters: <track_name>",0ah,0dh
+                          db "The track name can be of up to eight ASCII characters from A-Z.",0ah,0dh,"$"
 
     ; custom game menu texts.
     menu_track_select db "Track info",0,0,0     ; shown on the main menu screen.
