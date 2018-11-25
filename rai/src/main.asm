@@ -103,10 +103,10 @@ segment @BASE_DATA
                      db 40h,0bh                 ; car to where the cpu starts from, since the cpu's car is somewhat offset from the player's.
                      db 40h,0bh
                      db 42h,0eh
-                     db 00h,10h
+                     db 10h,00h
                      db 80h,13h
                      db 00h,12h
-                     db 00h,19h
+                     db 00h,09h
 
     ; file names. sb = sandboxed version.
     fn_project_file db "HERBMARE\HERBMARE.DTA",0,0,0,0 ; the name and path to the project file. this is changed later by the program to adjust to the project we want to open.
@@ -133,7 +133,7 @@ segment @BASE_DATA
 
     ; misc.
     tmp db 0,0,0,0,0,0
-    record_message db "Recording...",0  ; message show on screen when recording the cpu lap.
+    record_message db "recording...",0          ; message show on screen when recording the cpu lap.
     record_message_len = $ - record_message
 
     file_buffer rb FILE_BUFFER_SIZE             ; we load data from disk into this buffer.
