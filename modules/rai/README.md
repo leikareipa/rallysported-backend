@@ -1,7 +1,8 @@
-# RAI (RallySportED)
-RAI is a module of RallySportED that allows for the editing of Rally-Sport's AI opponents.
+## The RAI module of RallySportED-DOS
+RAI is a module of RallySportED-DOS that allows you to edit Rally-Sport's AI opponents.
 
-For further information and usage instructions, see the readme file included with RallySportED' binary distribution, available from [Tarpeeksi Hyvae Soft's website](http://tarpeeksihyvaesoft.com/soft).
-
-### Building
-To assemble RAI for DOS, which is its only target, do ```fasm src/main.asm rsed_ai.exe```, replacing forward slashes with backward ones, if need be. (I use the Windows version of fasm through Wine in Linux, but other permutations are likely to work.)
+#### Assembling
+To assemble RAI for its native target, DOS, using the fasm assembler, command the following in a terminal:
+```
+fasm src/main.asm rsed_ai.exe
+```
