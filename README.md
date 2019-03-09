@@ -6,7 +6,7 @@ You'll find pre-compiled binaries of this code on [Tarpeeksi Hyvae Soft's websit
 ## Modules
 The DOS version of RallySportED is split into four different modules (or executables, if you like): `RGEO`, `RLOAD`, `RTEX`, and `RAI`. Each module serves a particular purpose in creating assets for Rally-Sport. You can learn more about them in brief, below.
 
-**RGEO** &mdash; Track editor. Edit a track's heightmap and tilemap to create a new track.
+**RGEO** &mdash; Track editor. Edit a track's heightmap and/or tilemap.
 
 ![A screenshot of the RGEO module](screenshots/rgeo.b9-dos.png)
 
