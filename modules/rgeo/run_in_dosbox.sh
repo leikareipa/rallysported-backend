@@ -1,1 +1,1 @@
-dosbox -c "mount c bin/" -c "c:\rgeo.exe" -c "exit" -conf dosbox.conf
+dosbox -c "mount c bin/" -c "c:" -c "c:\rgeo.exe" -conf dosbox.conf
