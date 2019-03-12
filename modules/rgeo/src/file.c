@@ -108,3 +108,17 @@ long kf_file_size(const file_handle handle)
         return fileSize;
     }
 }
+
+/* Seeks to the given byte position. The position is relative to
+ * the start of the file.*/
+void kf_jump(const u32 pos, const file_handle handle)
+{
+    k_assert(kf_is_active_handle(handle), "Was asked for the file size of an inactive file handle.");
+
+    {
+        const int r = fseek(FILE_HANDLE_CACHE[handle], pos, SEEK_SET);
+        k_assert((r == 0), "Failed to jump to the given position in the file.");
+    }
+
+    return;
+}

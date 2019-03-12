@@ -13,4 +13,6 @@ void kf_close_file(const file_handle handle);
 
 long kf_file_size(const file_handle handle);
 
+void kf_jump(const u32 pos, const file_handle handle);
+
 #endif

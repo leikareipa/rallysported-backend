@@ -6,17 +6,35 @@
 #include <stdio.h>
 
 int test_file_c(void);
+int test_palette_c(void);
 
 int main(int argc, char **argv)
 {
-    printf("Hello there.\n");
-    printf("Testing file.c... %s\n", test_file_c()? "Passes." : "Fails!");
+    printf("Testing file.c... %s\n", test_file_c()? "Passes." : "FAILS!");
+    printf("Testing palette.c... %s\n", test_palette_c()? "Passes." : "FAILS!");
 
     return 0;
 }
 
-#include "file.h"
+#include "palette.h"
 #include <string.h>
+int test_palette_c(void)
+{
+    /* The first two colors (RGB) of Rally-Sport's palette #1.*/
+    const u8 referenceBytes[6] = {0, 0, 0, 0x2, 0x10, 0x4};
+
+    /* Load Rally-Sport's palette #1.*/
+    kpal_initialize_palette(0);
+
+    if (memcmp(kpal_palette(), referenceBytes, 6) != 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+#include "file.h"
 int test_file_c(void)
 {
     const file_handle fh = kf_open_file("RALLYE.EXE", "rb+");
@@ -33,6 +51,8 @@ int test_file_c(void)
         u8 bytes[4];
 
         kf_read_bytes(bytes, 4, fh);
+        kf_close_file(fh);
+
         if (memcmp(bytes, referenceBytes, 4) != 0)
         {
             return 0;
