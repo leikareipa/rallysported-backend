@@ -3,8 +3,6 @@
  * 
  */
 
-#include <assert.h>
-#include <stdio.h>
 #include "common.h"
 #include "file.h"
 

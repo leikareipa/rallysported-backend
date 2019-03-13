@@ -12,13 +12,15 @@
 static u8 palette[NUM_COLORS_IN_PALETTE * 3];
 
 /* Loads the given palette (0..3) from RALLYE.EXE.*/
-void kpal_initialize_palette(const uint paletteId)
+void kpal_initialize_palette(const uint paletteIdx)
 {
     const file_handle fh = kf_open_file("RALLYE.EXE", "rb");
 
     /* Get the starting offset in RALLYE.EXE of the first color of the
      * desired palette.*/
-    const u32 startOffset = (0x202d6 + (paletteId * 3 * NUM_COLORS_IN_PALETTE));
+    const u32 startOffset = (0x202d6 + (paletteIdx * 3 * NUM_COLORS_IN_PALETTE));
+
+    k_assert((paletteIdx < 4), "Attempting to access Rally-Sport's palettes out of bounds.");
 
     kf_jump(startOffset, fh);
     kf_read_bytes(palette, NUM_ELEMENTS(palette), fh);

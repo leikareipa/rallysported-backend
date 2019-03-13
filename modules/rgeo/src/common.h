@@ -1,6 +1,8 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include <assert.h>
+#include <stdio.h>
 #include "types.h"
 
 #define NUM_ELEMENTS(array) (int)(sizeof((array)) / sizeof((array)[0]))
