@@ -3,9 +3,9 @@
  * 
  * Provides information (like byte offsets) related to Rally-Sport's executables.
  * 
- * You are expected to have read - or to reference as needed - the documentation
- * on Rally-Sport's data formats, available at
- * github.com/leikareipa/rallysported/blob/master/docs/rs-formats.txt.
+ * To understand the Rally-Sport-related terminology used here, you are expected
+ * to have read - or to reference as needed - the documentation on Rally-Sport's
+ * data formats, available at github.com/leikareipa/rallysported/blob/master/docs/rs-formats.txt.
  * 
  */
 
