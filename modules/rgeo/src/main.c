@@ -34,13 +34,14 @@ int test_palette_c(void)
     return 1;
 }
 
+#include "exe_info.h"
 #include "file.h"
 int test_file_c(void)
 {
     const file_handle fh = kf_open_file("RALLYE.EXE", "rb+");
     
     /* Test whether a file of the correct size was opened.*/
-    if (!kf_is_active_handle(fh) || kf_file_size(fh) != 133452)
+    if (!kf_is_active_handle(fh) || kf_file_size(fh) != kexe_rallye_executable_file_size())
     {
         return 0;
     }
