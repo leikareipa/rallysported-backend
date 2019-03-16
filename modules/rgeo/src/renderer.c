@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include "common.h"
 #include "types.h"
 
 #if __DMC__
@@ -15,7 +16,7 @@
 #endif
 
 /* The video mode we were in prior to entering mode 13h.*/
-static u8 ORIGINAL_VIDEO_MODE = 3;
+static int ORIGINAL_VIDEO_MODE = 3;
 
 int current_video_mode(void)
 {
@@ -29,7 +30,10 @@ int current_video_mode(void)
 /* Switch to VGA mode 13h.*/
 void krend_enter_video_mode_13(void)
 {
-    if (current_video_mode() == 0x13) return;
+    const int videoModeNow = current_video_mode();
+    k_assert((videoModeNow != 0x13), "Trying to enter mode 13h from mode 13h.");
+
+    ORIGINAL_VIDEO_MODE = videoModeNow;
 
     {
         union REGS regs;
