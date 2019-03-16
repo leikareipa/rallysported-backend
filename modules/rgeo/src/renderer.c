@@ -1,3 +1,8 @@
+/*
+ * 2019 Tarpeeksi Hyvae Soft
+ * 
+ */
+
 #include "renderer.h"
 #include "common.h"
 #include "types.h"

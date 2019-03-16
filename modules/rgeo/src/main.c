@@ -7,13 +7,26 @@
 
 int test_file_c(void);
 int test_palette_c(void);
+int test_project_c(void);
 
 int main(int argc, char **argv)
 {
     printf("Testing file.c... %s\n", test_file_c()? "Passes." : "FAILS!");
     printf("Testing palette.c... %s\n", test_palette_c()? "Passes." : "FAILS!");
+    printf("Testing project.c... %s\n", test_project_c()? "Passes." : "FAILS!");
 
     return 0;
+}
+
+#include "project.h"
+int test_project_c(void)
+{
+    if (!kproj_is_valid_project_name("VALIDNAM")) return 0; /* Up to 8 characters in range A-Z.*/
+    if (kproj_is_valid_project_name("V LIDNAM")) return 0; /* Spaces aren't allowed.*/
+    if (kproj_is_valid_project_name("V4L1DN4M")) return 0; /* Numbers aren't allowed.*/
+    if (kproj_is_valid_project_name("NOTAVALIDNAME")) return 0; /* Too long.*/
+
+    return 1;
 }
 
 #include "palette.h"
