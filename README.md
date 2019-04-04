@@ -8,15 +8,15 @@ The DOS version of RallySportED is split into four different modules (or executa
 
 **RGEO** &mdash; Track editor. Edit a track's heightmap and/or tilemap.
 
-![A screenshot of the RGEO module](screenshots/rgeo.b9-dos.png)
-
 RGEO features pseudo-3d rendering of Rally-Sport's heightmap (MAASTO files) and tilemap (VARIMAA files) track data, and will run on a 486-66 MHz CPU (Pentium 60+ recommended). The terrain can be raised, lowered, and painted with the game's textures to create entirely new tracks, or to just modify the existing ones. Written in C++, RGEO is the only module whose source code is currently not available in this repo.
+
+![A screenshot of the RGEO module](screenshots/rgeo.b9-dos.png)
 
 **[RTEX](modules/rtex/)** &mdash; Texture editor. Edit the game's track surface textures.
 
-![A screenshot of the RTEX module](screenshots/rtex.b9-dos.png)
+Written in assembly and able to run on as little as a 16-MHz 386, RTEX lets you modify the textures with which Rally-Sport's track surfaces are painted. These are the textures stored in the game's PALAT files, in other words.
 
-Written in assembly and able to run on a 386-16 MHz CPU, RTEX lets you modify the textures with which Rally-Sport's track surfaces are painted. These are the textures stored in the game's PALAT files, in other words.
+![A screenshot of the RTEX module](screenshots/rtex.b9-dos.png)
 
 **[RAI](modules/rai/)** &mdash; AI editor. Change how the game's CPU opponent drives a particular track.
 
