@@ -49,7 +49,7 @@ u32 kexe_rallye_prop_block_start(const u8 trackIdx)
         case 5: return 0x15293;
         case 6: return 0x152a1;
         case 7: return 0x1533f;
-        default: k_assert(0, "Unhandled case.");
+        default: k_assert(0, "Unhandled case."); return 0;
     }
 }
 
@@ -74,7 +74,7 @@ u32 kexe_rallye_starting_position_block(const u8 trackIdx)
         case 5: return 0x15025;
         case 6: return 0x1502d;
         case 7: return 0x15035;
-        default: k_assert(0, "Unhandled case.");
+        default: k_assert(0, "Unhandled case."); return 0;
     }
 }
 
@@ -97,7 +97,7 @@ u32 kexe_rallye_default_prop_count(const u8 trackIdx)
         case 5: return 1;
         case 6: return 13;
         case 7: return 12;
-        default: k_assert(0, "Unhandled case.");
+        default: k_assert(0, "Unhandled case."); return 0;
     }
 }
 
@@ -119,7 +119,7 @@ u32 kexe_rallye_prop_offset(const u8 propIdx, const u8 trackIdx)
         case 5: offs = 0x15295;
         case 6: offs = 0x152a3;
         case 7: offs = 0x15341;
-        default: k_assert(0, "Unhandled case.");
+        default: k_assert(0, "Unhandled case."); return 0;
     }
 
     return (offs + kexe_rallye_prop_block_length() * (propIdx - 1));

@@ -3,6 +3,9 @@
 
 #include "types.h"
 
+/* How many tracks we expect Rally-Sport to have. The demo has eight.*/
+#define KEXE_NUM_TRACKS 8
+
 u32 kexe_rallye_track_header_block_start(const u8 trackIdx);
 
 u32 kexe_valikko_track_header_block_start(const u8 trackIdx);

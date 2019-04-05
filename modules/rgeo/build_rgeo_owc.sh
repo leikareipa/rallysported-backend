@@ -11,4 +11,3 @@ PATH=$PATH:$OW_PATH/binl
 wcl $BUILD_OPTIONS *.c
 
 rm *.o
-rm *.err

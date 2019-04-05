@@ -8,10 +8,12 @@
 
 static FILE *FILE_HANDLE_CACHE[5] = {NULL};
 
-/* Returns true if the given handle points to an opened file.*/
-int kf_is_active_handle(const file_handle handle)
+/* Returns true if the given handle points to a valid, opened file.*/
+int kf_is_valid_handle(const file_handle handle)
 {
-    return (handle < NUM_ELEMENTS(FILE_HANDLE_CACHE) && FILE_HANDLE_CACHE[handle] != NULL);
+    return ((handle != KF_INVALID_HANDLE) &&
+            (handle < NUM_ELEMENTS(FILE_HANDLE_CACHE)) &&
+            (FILE_HANDLE_CACHE[handle] != NULL));
 }
 
 static file_handle next_free_handle()
@@ -23,17 +25,50 @@ static file_handle next_free_handle()
     while (FILE_HANDLE_CACHE[handle] != NULL)
     {
         handle++;
-        k_assert((handle < NUM_ELEMENTS(FILE_HANDLE_CACHE)), "Couldn't find a free file handle.");
+        k_assert((handle != KF_INVALID_HANDLE) &&
+                 (handle < NUM_ELEMENTS(FILE_HANDLE_CACHE)), "Couldn't find a free file handle.");
     }
 
     return handle;
+}
+
+int kf_buffered_data_copy(const file_handle srcHandle, const file_handle dstHandle)
+{
+    DEBUG(("Copying data from file with handle %d to file with handle %d.", srcHandle, dstHandle));
+
+    k_assert((kf_is_valid_handle(srcHandle) && kf_is_valid_handle(dstHandle)),
+             "Was asked to copy between two files, but at least one of them was inactive.");
+
+    {
+        #define BUFFERSIZE 100
+        i32 dataLen = kf_file_size(srcHandle);
+        u8 buffer[BUFFERSIZE];
+
+        while (dataLen > 0)
+        {
+            i32 copyLen = BUFFERSIZE;
+            if (copyLen > dataLen) copyLen = dataLen;
+
+            if (fread(&buffer, 1, copyLen, FILE_HANDLE_CACHE[srcHandle]) != copyLen ||
+                fwrite(&buffer, 1, copyLen, FILE_HANDLE_CACHE[dstHandle]) != copyLen)
+            {
+                k_assert(0, "Failed to copy the data.");
+                return 0;
+            }
+
+            dataLen -= copyLen;
+        }
+        #undef BUFFERSIZE
+    }
+
+    return 1;
 }
 
 void kf_read_bytes(u8 *dst, const u32 numBytes, const file_handle handle)
 {
     DEBUG(("Was asked to read %lu bytes from file with handle %d.", numBytes, handle));
 
-    k_assert(kf_is_active_handle(handle), "Was provided an inactive file handle.");
+    k_assert(kf_is_valid_handle(handle), "Was provided an inactive file handle.");
 
     {
         const size_t r = fread(dst, 1, numBytes, FILE_HANDLE_CACHE[handle]);
@@ -65,7 +100,7 @@ void kf_close_file(const file_handle handle)
 {
     DEBUG(("Closing file with handle %d.", handle));
 
-    assert(kf_is_active_handle(handle));
+    assert(kf_is_valid_handle(handle));
 
     {
         const int r = fclose(FILE_HANDLE_CACHE[handle]);
@@ -78,11 +113,11 @@ void kf_close_file(const file_handle handle)
 }
 
 /* Returns the size, in bytes, of the file with the given handle.*/
-long kf_file_size(const file_handle handle)
+u32 kf_file_size(const file_handle handle)
 {
     DEBUG(("Getting size of file with handle %d.", handle));
 
-    k_assert(kf_is_active_handle(handle), "Was asked for the file size of an inactive file handle.");
+    k_assert(kf_is_valid_handle(handle), "Was asked for the file size of an inactive file handle.");
 
     {
         int r = 0;
@@ -103,7 +138,7 @@ long kf_file_size(const file_handle handle)
         r = fseek(f, origPos, SEEK_SET);
         k_assert((r == 0), "Couldn't find out the size of the given file.");
 
-        return fileSize;
+        return (u32)fileSize;
     }
 }
 
@@ -111,7 +146,7 @@ long kf_file_size(const file_handle handle)
  * the start of the file.*/
 void kf_jump(const u32 pos, const file_handle handle)
 {
-    k_assert(kf_is_active_handle(handle), "Was asked for the file size of an inactive file handle.");
+    k_assert(kf_is_valid_handle(handle), "Was asked for the file size of an inactive file handle.");
 
     {
         const int r = fseek(FILE_HANDLE_CACHE[handle], pos, SEEK_SET);
