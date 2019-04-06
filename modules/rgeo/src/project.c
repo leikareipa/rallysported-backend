@@ -145,6 +145,8 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
             kf_write_bytes(HITABLE_TXT, HITABLE_TXT_LEN, fh);
             kf_close_file(fh);
         }
+
+        kf_close_file(projFileHandle);
     }
 
     return 1;
