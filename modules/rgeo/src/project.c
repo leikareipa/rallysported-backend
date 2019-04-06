@@ -33,6 +33,40 @@ int kproj_is_valid_project_name(const char *const name)
     return 1;
 }
 
+/* Creates a string pointing to the given project's project file. Expects that
+ * projects' folders are directly above the current directory.*/
+const char* project_file_name(const char *const projName)
+{
+    static char filename[MAX_PROJECT_NAME_LEN*2 + 2];
+
+    /* TODO: A forward slash as a dir separator is likely to fail in real DOS,
+     *       though it works in DOSBox on Linux.*/
+    sprintf(filename, "%s/%s.DTA", projName, projName);
+
+    return filename;
+}
+
+/* Loads the data (MAASTO, VARIMAA, and PALAT) of the project whose name is
+ * given. Triggers an assertion failure if unsuccessful.*/
+void kproj_load_data_of_project(const char *const projName)
+{
+    k_assert(kproj_is_valid_project_name(projName), "Was asked to load a project with an invalid name.");
+
+    {
+        const file_handle projFileHandle = kf_open_file(project_file_name(projName), "wb");
+
+        /* TODO: Load MAASTO data.*/
+
+        /* TODO: Load VARIMAA data.*/
+        
+        /* TODO: Load PALAT data.*/
+
+        kf_close_file(projFileHandle);
+    }
+
+    return;
+}
+
 /* Copies the contents of the given file into the given project file, prepending
  * the data with 4 bytes describing the source file's byte length.*/
 void copy_to_project_file(const char *const srcFile, const file_handle projFileHandle)
@@ -83,7 +117,6 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
     /* Create the project file.*/
     {
         char filename[MAX_PROJECT_NAME_LEN*2 + 2];
-        file_handle projFileHandle = KF_INVALID_HANDLE;
         const uint palatIdx = kexe_pala_index_for_track_index(trackIdx);
         
         /* The sprintf()s below expect single-character indices.*/
@@ -97,11 +130,7 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
 
         /* Copy asset files' contents into the project file.*/
         {
-            /* Create the project file into its directory.*/
-            /* TODO: A forward slash as a dir separator is likely to fail in
-             *       real DOS, though it works in DOSBox on Linux.*/
-            sprintf(filename, "%s/%s.DTA", projectName, projectName);
-            projFileHandle = kf_open_file(filename, "wb");
+            const file_handle projFileHandle = kf_open_file(project_file_name(projectName), "wb");
 
             sprintf(filename, "MAASTO.00%c", ('0' + trackIdx));
             copy_to_project_file(filename, projFileHandle);
@@ -118,6 +147,8 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
 
             sprintf(filename, "KIERROS%c.DTA", ('0' + trackIdx));
             copy_to_project_file(filename, projFileHandle);
+
+            kf_close_file(projFileHandle);
         }
 
         /* Create a default manifesto file.*/
@@ -151,8 +182,6 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
             kf_write_bytes(HITABLE_TXT, HITABLE_TXT_LEN, fh);
             kf_close_file(fh);
         }
-
-        kf_close_file(projFileHandle);
     }
 
     return 1;

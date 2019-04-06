@@ -7,7 +7,6 @@
 #include "common.h"
 #include "file.h"
 
-#include "dbg_hush.h"
 
 static FILE *FILE_HANDLE_CACHE[5] = {NULL};
 
@@ -70,9 +69,10 @@ int kf_copy_contents(const file_handle srcHandle, const file_handle dstHandle)
 int kf_directory_exists(const char *const dirName)
 {
 #if __DMC__
-    #define S_IFMT	 _S_IFMT
-    #define S_IFDIR	 _S_IFDIR
+    #define S_IFMT	_S_IFMT
+    #define S_IFDIR	_S_IFDIR
 #endif
+
     struct stat sb;
     return ((stat(dirName, &sb) == 0) && S_ISDIR(sb.st_mode));
 }
