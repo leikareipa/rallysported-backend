@@ -3,6 +3,7 @@
  * 
  */
 
+#include <sys/stat.h>
 #include "common.h"
 #include "file.h"
 
@@ -64,6 +65,16 @@ int kf_copy_contents(const file_handle srcHandle, const file_handle dstHandle)
     }
 
     return 1;
+}
+
+int kf_directory_exists(const char *const dirName)
+{
+#if __DMC__
+    #define S_IFMT	 _S_IFMT
+    #define S_IFDIR	 _S_IFDIR
+#endif
+    struct stat sb;
+    return ((stat(dirName, &sb) == 0) && S_ISDIR(sb.st_mode));
 }
 
 void kf_read_bytes(u8 *dst, const u32 numBytes, const file_handle handle)

@@ -68,6 +68,12 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
         return 0;
     }
 
+    if (kf_directory_exists(projectName))
+    {
+        ERROR(("Trying to create a new project with a name that's already in use."));
+        return 0;
+    }
+
     if ((trackIdx < 1) || (trackIdx > KEXE_NUM_TRACKS))
     {
         ERROR(("Trying to create a new project with a track index out of bounds (%u).", trackIdx));

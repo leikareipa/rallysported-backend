@@ -31,8 +31,8 @@ int test_project_c(void)
     if (kproj_is_valid_project_name("V4L1DN4M")) return 0; /* Numbers aren't allowed.*/
     if (kproj_is_valid_project_name("NOTAVALIDNAME")) return 0; /* Too long.*/
 
-    if (kproj_create_project_for_track(KEXE_NUM_TRACKS+1, "HELLO")) return 0; /* Track index out of bounds.*/
-    if (kproj_create_project_for_track(KEXE_NUM_TRACKS, "HELLOOOOO")) return 0; /* Invalid track name (too long).*/
+    if (kproj_create_project_for_track(KEXE_NUM_TRACKS+1, "YYYYYYYY")) return 0; /* Track index out of bounds.*/
+    if (kproj_create_project_for_track(KEXE_NUM_TRACKS, "YYYYYYYYY")) return 0; /* Invalid track name (too long).*/
 
     return 1;
 }
