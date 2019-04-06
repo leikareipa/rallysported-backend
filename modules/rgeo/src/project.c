@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include "exe_info.h"
 #include "project.h"
-#include "hitable.h"
 #include "common.h"
 #include "file.h"
 
@@ -134,6 +133,8 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
 
         /* Create a default HITABLE.TXT file.*/
         {
+            #include "hitable.inc"
+
             file_handle fh = KF_INVALID_HANDLE;
 
             /* TODO: A forward slash as a dir separator is likely to fail in
