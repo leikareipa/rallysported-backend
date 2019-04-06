@@ -6,6 +6,8 @@
 #include "common.h"
 #include "file.h"
 
+#include "dbg_hush.h"
+
 static FILE *FILE_HANDLE_CACHE[5] = {NULL};
 
 /* Returns true if the given handle points to a valid, opened file.*/

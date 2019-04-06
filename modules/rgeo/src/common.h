@@ -17,7 +17,7 @@
                                          assert((condition) && (message));\
                                      }
 
+#define ERROR(args) (printf("[error] {%s:%i} ", __FILE__, __LINE__), printf args, printf("\n"), fflush(stdout))
 #define DEBUG(args) (printf("[debug] {%s:%i} ", __FILE__, __LINE__), printf args, printf("\n"), fflush(stdout))
-#define ERROR(args) (printf("[ERROR] {%s:%i} ", __FILE__, __LINE__), printf args, printf("\n"), fflush(stdout))
 
 #endif

@@ -19,9 +19,7 @@ int main(int argc, char **argv)
     printf("Testing palette.c... %s\n", test_palette_c()? "Passes." : "FAILS!");
     printf("Testing project.c... %s\n", test_project_c()? "Passes." : "FAILS!");
 
-    kproj_create_project_for_track(1, "HELLO");
-
-    DEBUG(("All done. Bye.\n"));
+    DEBUG(("All done. Bye."));
     return 0;
 }
 
