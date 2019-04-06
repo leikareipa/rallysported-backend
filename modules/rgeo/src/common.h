@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include "types.h"
 
+/* The minimum RallySportED loader version required for tracks made with this
+ * version of the track editor.*/
+#define REQUIRED_LOADER_VER 3
+
 #define NUM_ELEMENTS(array) (int)(sizeof((array)) / sizeof((array)[0]))
 
 #define k_assert(condition, message) if (!(condition))\

@@ -35,6 +35,21 @@ u32 kexe_rallye_executable_file_size(void)
     return 133452;
 }
 
+/* Returns the index of the PALAT file used by the track of the given index.
+ * The track index is expected in the range 1..n, i.e. with 1-based indexing;
+ * and the value returned for the PALAT file will likewise be a 1-based index.*/
+uint kexe_pala_index_for_track_index(const uint trackIdx)
+{
+    k_assert((trackIdx > 0 && trackIdx <= KEXE_NUM_TRACKS),
+             "Tried to query the PALAT index with a track index out of bounds.");
+
+    switch (trackIdx)
+    {
+        case 5: return 2;
+        default: return 1;
+    }
+}
+
 /* Starting offset of the given track's prop block in RALLYE.EXE.*/
 u32 kexe_rallye_prop_block_start(const u8 trackIdx)
 {

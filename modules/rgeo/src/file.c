@@ -32,7 +32,7 @@ static file_handle next_free_handle()
     return handle;
 }
 
-int kf_buffered_data_copy(const file_handle srcHandle, const file_handle dstHandle)
+int kf_copy_contents(const file_handle srcHandle, const file_handle dstHandle)
 {
     DEBUG(("Copying data from file with handle %d to file with handle %d.", srcHandle, dstHandle));
 
@@ -151,6 +151,32 @@ void kf_jump(const u32 pos, const file_handle handle)
     {
         const int r = fseek(FILE_HANDLE_CACHE[handle], pos, SEEK_SET);
         k_assert((r == 0), "Failed to jump to the given position in the file.");
+    }
+
+    return;
+}
+
+void kf_write_string(const char *const string, const file_handle handle)
+{
+    DEBUG(("Writing a string to file with handle %u.", handle));
+
+    k_assert(kf_is_valid_handle(handle), "Was asked to write a string to an inactive file handle.");
+
+    {
+        const int r = fputs(string, FILE_HANDLE_CACHE[handle]);
+        k_assert((r != EOF), "Failed to write the given string to the file.");
+    }
+}
+
+void kf_write_bytes(const u8 *const src, const u32 len, const file_handle handle)
+{
+    DEBUG(("Writing %u bytes to file with handle %u.", len, handle));
+
+    k_assert(kf_is_valid_handle(handle), "Was asked to write bytes to an inactive file handle.");
+
+    {
+        const size_t r = fwrite(src, 1, len, FILE_HANDLE_CACHE[handle]);
+        k_assert((r == len), "Failed to write the given data to the file.");
     }
 
     return;

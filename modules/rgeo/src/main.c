@@ -19,6 +19,8 @@ int main(int argc, char **argv)
     printf("Testing palette.c... %s\n", test_palette_c()? "Passes." : "FAILS!");
     printf("Testing project.c... %s\n", test_project_c()? "Passes." : "FAILS!");
 
+    kproj_create_project_for_track(1, "HELLO");
+
     DEBUG(("All done. Bye.\n"));
     return 0;
 }
@@ -26,13 +28,13 @@ int main(int argc, char **argv)
 #include "project.h"
 int test_project_c(void)
 {
-    if (!kproj_is_valid_project_name("VALIDNAM")) return 0; /* Up to 8 characters in range A-Z.*/
+    if (!kproj_is_valid_project_name("VALIDNAM")) return 0; /* A valid name.*/
     if (kproj_is_valid_project_name("V LIDNAM")) return 0; /* Spaces aren't allowed.*/
     if (kproj_is_valid_project_name("V4L1DN4M")) return 0; /* Numbers aren't allowed.*/
     if (kproj_is_valid_project_name("NOTAVALIDNAME")) return 0; /* Too long.*/
 
-    if (kproj_create_project_file_for_track(KEXE_NUM_TRACKS, "HELLO") != KF_INVALID_HANDLE) return 0; /* Track index out of bounds.*/
-    if (kproj_create_project_file_for_track(KEXE_NUM_TRACKS-1, "HELLOOOOO") != KF_INVALID_HANDLE) return 0; /* Invalid track name (too long).*/
+    if (kproj_create_project_for_track(KEXE_NUM_TRACKS, "HELLO")) return 0; /* Track index out of bounds.*/
+    if (kproj_create_project_for_track(KEXE_NUM_TRACKS-1, "HELLOOOOO")) return 0; /* Invalid track name (too long).*/
 
     return 1;
 }
