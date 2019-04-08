@@ -81,6 +81,8 @@ void kf_read_bytes(u8 *dst, const u32 numBytes, const file_handle handle)
 {
     DEBUG(("Was asked to read %lu bytes from file with handle %d.", numBytes, handle));
 
+    k_assert((dst != NULL), "Was asked to read into a null buffer.");
+
     k_assert(kf_is_valid_handle(handle), "Was provided an inactive file handle.");
 
     {
@@ -173,6 +175,8 @@ void kf_write_string(const char *const string, const file_handle handle)
 {
     DEBUG(("Writing a string to file with handle %u.", handle));
 
+    k_assert((string != NULL), "Was asked to write a null string.");
+
     k_assert(kf_is_valid_handle(handle), "Was asked to write a string to an inactive file handle.");
 
     {
@@ -184,6 +188,8 @@ void kf_write_string(const char *const string, const file_handle handle)
 void kf_write_bytes(const u8 *const src, const u32 len, const file_handle handle)
 {
     DEBUG(("Writing %u bytes to file with handle %u.", len, handle));
+
+    k_assert((src != NULL), "Was asked to write from a null buffer.");
 
     k_assert(kf_is_valid_handle(handle), "Was asked to write bytes to an inactive file handle.");
 
