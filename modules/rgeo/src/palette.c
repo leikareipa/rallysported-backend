@@ -22,7 +22,7 @@ void kpal_initialize_palette(const uint paletteIdx)
 
     k_assert((paletteIdx < 4), "Attempting to access Rally-Sport's palettes out of bounds.");
 
-    kf_jump(startOffset, fh);
+    kf_seek(startOffset, fh);
     kf_read_bytes(palette, NUM_ELEMENTS(palette), fh);
 
     kf_close_file(fh);

@@ -30,5 +30,7 @@ void kp_load_palat_data(const file_handle projFileHandle)
     DEBUG(("Read %u bytes of PALAT data into null.", dataLen));
     free(data);
 
+    kf_jump(dataLenExtra, projFileHandle);
+
     return;
 }

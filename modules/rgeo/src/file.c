@@ -87,9 +87,9 @@ void kf_read_bytes(u8 *dst, const u32 numBytes, const file_handle handle)
 
     {
         const size_t r = fread(dst, 1, numBytes, FILE_HANDLE_CACHE[handle]);
-        DEBUG(("Read %u bytes from file with handle %u.", r, handle));
-
         k_assert((r == numBytes), "Failed to read the requested number of bytes.");
+
+        DEBUG(("Read %u bytes from file with handle %u.", r, handle));
     }
 
     return;
@@ -157,15 +157,29 @@ u32 kf_file_size(const file_handle handle)
     }
 }
 
-/* Seeks to the given byte position. The position is relative to
- * the start of the file.*/
-void kf_jump(const u32 pos, const file_handle handle)
+/* Jumps back or forward by the given number of bytes from the current cursor
+ * position.*/
+void kf_jump(const i32 posDelta, const file_handle handle)
 {
-    k_assert(kf_is_valid_handle(handle), "Was asked for the file size of an inactive file handle.");
+    k_assert(kf_is_valid_handle(handle), "Was asked to jump with an inactive file handle.");
+
+    {
+        const int r = fseek(FILE_HANDLE_CACHE[handle], posDelta, SEEK_CUR);
+        k_assert((r == 0), "Failed to jump to the given position in the file.");
+    }
+
+    return;
+}
+
+/* Seeks to the given byte position. The position is relative to the start of
+ * the file.*/
+void kf_seek(const u32 pos, const file_handle handle)
+{
+    k_assert(kf_is_valid_handle(handle), "Was asked to seek with an inactive file handle.");
 
     {
         const int r = fseek(FILE_HANDLE_CACHE[handle], pos, SEEK_SET);
-        k_assert((r == 0), "Failed to jump to the given position in the file.");
+        k_assert((r == 0), "Failed to seek to the given position in the file.");
     }
 
     return;
