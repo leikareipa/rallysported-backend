@@ -10,7 +10,10 @@
 #include <stdio.h>
 #include "exe_info.h"
 #include "project.h"
+#include "varimaa.h"
+#include "maasto.h"
 #include "common.h"
+#include "palat.h"
 #include "file.h"
 
 #define MAX_PROJECT_NAME_LEN 8
@@ -53,13 +56,11 @@ void kproj_load_data_of_project(const char *const projName)
     k_assert(kproj_is_valid_project_name(projName), "Was asked to load a project with an invalid name.");
 
     {
-        const file_handle projFileHandle = kf_open_file(project_file_name(projName), "wb");
+        const file_handle projFileHandle = kf_open_file(project_file_name(projName), "rb");
 
-        /* TODO: Load MAASTO data.*/
-
-        /* TODO: Load VARIMAA data.*/
-        
-        /* TODO: Load PALAT data.*/
+        km_load_maasto_data(projFileHandle);
+        kv_load_varimaa_data(projFileHandle);
+        kp_load_palat_data(projFileHandle);
 
         kf_close_file(projFileHandle);
     }
