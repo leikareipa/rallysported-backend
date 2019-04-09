@@ -7,14 +7,32 @@
 #include "exe_info.h"
 #include "project.h"
 #include "common.h"
+#include "palat.h"
 #include "file.h"
 
 int test_file_c(void);
 int test_palette_c(void);
 int test_project_c(void);
 
+void initialize_program(void)
+{
+    /* TODO.*/
+
+    return;
+}
+
+/* Asks each relevant unit to release its allocated memory, etc.*/
+void release_program(void)
+{
+    kp_release_palat_data();
+
+    return;
+}
+
 int main(int argc, char **argv)
 {
+    initialize_program();
+    
     printf("Testing file.c... %s\n", test_file_c()? "Passes." : "FAILS!");
     printf("Testing palette.c... %s\n", test_palette_c()? "Passes." : "FAILS!");
     printf("Testing project.c... %s\n", test_project_c()? "Passes." : "FAILS!");
@@ -22,6 +40,7 @@ int main(int argc, char **argv)
     /*kproj_create_project_for_track(1, "HELLO");*/
     kproj_load_data_of_project("HELLO");
 
+    release_program();
     DEBUG(("All done. Bye."));
     return 0;
 }
