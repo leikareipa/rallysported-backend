@@ -32,7 +32,7 @@ void kp_release_palat_data(void)
  * are the pixels of the given PALA texture (0-indexed).*/
 const u8* kp_pala(const uint palaIdx)
 {
-    k_assert((palaIdx < MAX_NUM_PALAS), "Attempting to access a PALA texture out of bounds.");
+    k_optional_assert((palaIdx < MAX_NUM_PALAS), "Attempting to access a PALA texture out of bounds.");
 
     return &PALAT_DATA[palaIdx * NUM_PIXELS_IN_PALA];
 }
