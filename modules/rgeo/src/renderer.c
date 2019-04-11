@@ -33,7 +33,7 @@ int current_video_mode(void)
 }
 
 /* Switch to VGA mode 13h.*/
-void krend_enter_video_mode_13(void)
+void kr_enter_video_mode_13(void)
 {
     const int videoModeNow = current_video_mode();
     k_assert((videoModeNow != 0x13), "Trying to enter mode 13h from mode 13h.");
@@ -51,7 +51,7 @@ void krend_enter_video_mode_13(void)
 }
 
 /* Revert back to whatever video mode we were in before entring mode 13h.*/
-void krend_leave_video_mode_13h(void)
+void kr_leave_video_mode_13h(void)
 {
     union REGS regs;
     regs.h.ah = 0;
