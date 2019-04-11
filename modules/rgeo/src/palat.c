@@ -14,6 +14,10 @@
  * is a 16 x 16 slice in this array.*/
 static u8* PALAT_DATA = NULL;
 
+/* The number of PALA textures that we've loaded from a project file into the
+ * PALAT_DATA array by the most recent call to kp_load_palat_data().*/
+static uint NUM_PALAS_LOADED = 0;
+
 /* The maximum number of PALA textures we can load in per project. The PALAT_DATA
  * array will hold no more than this number of PALA textures.*/
 #define MAX_NUM_PALAS 253
@@ -24,6 +28,7 @@ void kp_release_palat_data(void)
 {
     free(PALAT_DATA);
     PALAT_DATA = NULL;
+    NUM_PALAS_LOADED = 0;
 
     return;
 }
@@ -32,7 +37,8 @@ void kp_release_palat_data(void)
  * are the pixels of the given PALA texture (0-indexed).*/
 const u8* kp_pala(const uint palaIdx)
 {
-    k_optional_assert((palaIdx < MAX_NUM_PALAS), "Attempting to access a PALA texture out of bounds.");
+    k_optional_assert((PALAT_DATA != NULL), "Attempting to access a PALA texture while no PALAT data is loaded.");
+    k_optional_assert((palaIdx < NUM_PALAS_LOADED), "Attempting to access a PALA texture out of bounds.");
 
     return &PALAT_DATA[palaIdx * NUM_PIXELS_IN_PALA];
 }
@@ -76,8 +82,9 @@ void kp_load_palat_data(const file_handle projFileHandle)
 
         PALAT_DATA = (u8*)malloc(dataLen);
         kf_read_bytes(PALAT_DATA, dataLen, projFileHandle);
+        NUM_PALAS_LOADED = (dataLen / NUM_PIXELS_IN_PALA);
 
-        DEBUG(("Read %u bytes of PALAT data into null.", dataLen));
+        DEBUG(("Received %lu bytes of PALAT data (%u PALA textures).", dataLen, NUM_PALAS_LOADED));
     }
 
     /* Guarantee that the file cursor will be positioned at the byte immediately
