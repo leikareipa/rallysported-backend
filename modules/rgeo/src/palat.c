@@ -22,8 +22,6 @@ static uint NUM_PALAS_LOADED = 0;
  * array will hold no more than this number of PALA textures.*/
 #define MAX_NUM_PALAS 253
 
-const uint NUM_PIXELS_IN_PALA = (KP_PALA_WIDTH * KP_PALA_HEIGHT);
-
 void kp_release_palat_data(void)
 {
     free(PALAT_DATA);
@@ -40,7 +38,7 @@ const u8* kp_pala(const uint palaIdx)
     k_optional_assert((PALAT_DATA != NULL), "Attempting to access a PALA texture while no PALAT data is loaded.");
     k_optional_assert((palaIdx < NUM_PALAS_LOADED), "Attempting to access a PALA texture out of bounds.");
 
-    return &PALAT_DATA[palaIdx * NUM_PIXELS_IN_PALA];
+    return &PALAT_DATA[palaIdx * KP_NUM_PIXELS_IN_PALA];
 }
 
 /* Loads the PALAT data from the given RallySportED project file.
@@ -61,13 +59,13 @@ void kp_load_palat_data(const file_handle projFileHandle)
 
     /* Get the size of the PALAT data.*/
     {
-        const u32 maxDataLen = (MAX_NUM_PALAS * NUM_PIXELS_IN_PALA);
+        const u32 maxDataLen = (MAX_NUM_PALAS * KP_NUM_PIXELS_IN_PALA);
         
         kf_read_bytes((u8*)&dataLen, 4, projFileHandle);
 
         /* Sanity check. We expect there to never be more than 256 PALA textures
          * in Rally-Sport's PALAT files.*/
-        k_assert((dataLen <= (256ul * NUM_PIXELS_IN_PALA)), "Detected an invalid PALAT data length in the project file.");
+        k_assert((dataLen <= (256 * KP_NUM_PIXELS_IN_PALA)), "Detected an invalid PALAT data length in the project file.");
 
         if (dataLen > maxDataLen)
         {
@@ -78,11 +76,11 @@ void kp_load_palat_data(const file_handle projFileHandle)
 
     /* Read the PALAT data from disk to memory.*/
     {
-        k_assert(((dataLen % NUM_PIXELS_IN_PALA) == 0), "Detected incomplete PALAT data in the project file.");
+        k_assert(((dataLen % KP_NUM_PIXELS_IN_PALA) == 0), "Detected incomplete PALAT data in the project file.");
 
         PALAT_DATA = (u8*)malloc(dataLen);
         kf_read_bytes(PALAT_DATA, dataLen, projFileHandle);
-        NUM_PALAS_LOADED = (dataLen / NUM_PIXELS_IN_PALA);
+        NUM_PALAS_LOADED = (dataLen / KP_NUM_PIXELS_IN_PALA);
 
         DEBUG(("Received %lu bytes of PALAT data (%u PALA textures).", dataLen, NUM_PALAS_LOADED));
     }

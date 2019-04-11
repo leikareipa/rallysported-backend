@@ -11,7 +11,7 @@
 /* Each color has three channels, RGB.*/
 static u8 palette[NUM_COLORS_IN_PALETTE * 3];
 
-/* Loads the given palette (0..3) from RALLYE.EXE.*/
+/* Loads the given palette (0..3) from RALLYE.EXE into memory.*/
 void kpal_initialize_palette(const uint paletteIdx)
 {
     const file_handle fh = kf_open_file("RALLYE.EXE", "rb");

@@ -3,8 +3,11 @@
  * 
  */
 
+#include <string.h>
 #include <stdio.h>
 #include "exe_info.h"
+#include "renderer.h"
+#include "palette.h"
 #include "project.h"
 #include "common.h"
 #include "palat.h"
@@ -33,12 +36,19 @@ int main(int argc, char **argv)
 {
     initialize_program();
     
-    printf("Testing file.c... %s\n", test_file_c()? "Passes." : "FAILS!");
+    /*printf("Testing file.c... %s\n", test_file_c()? "Passes." : "FAILS!");
     printf("Testing palette.c... %s\n", test_palette_c()? "Passes." : "FAILS!");
-    printf("Testing project.c... %s\n", test_project_c()? "Passes." : "FAILS!");
+    printf("Testing project.c... %s\n", test_project_c()? "Passes." : "FAILS!");*/
 
     /*kproj_create_project_for_track(1, "HELLO");*/
     kproj_load_data_of_project("HELLO");
+
+    /* Test rendering.*/
+    {
+        kr_enter_video_mode_13();
+        kr_draw_pala(3);
+        for (;;){}
+    }
 
     release_program();
     DEBUG(("All done. Bye."));
@@ -59,8 +69,6 @@ int test_project_c(void)
     return 1;
 }
 
-#include "palette.h"
-#include <string.h>
 int test_palette_c(void)
 {
     /* The first two colors (RGB) of Rally-Sport's palette #1.*/
