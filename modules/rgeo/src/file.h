@@ -24,7 +24,7 @@ void kf_write_bytes(const u8 *const src, const u32 len, const file_handle handle
 void kf_write_string(const char *const string, const file_handle handle);
 void kf_close_file(const file_handle handle);
 void kf_jump(const i32 posDelta, const file_handle handle);
-void kf_seek(const u32 pos, const file_handle handle);
+void kf_set_cursor(const u32 pos, const file_handle handle);
 int kf_directory_exists(const char *const dirName);
 int kf_is_valid_handle(const file_handle handle);
 int kf_copy_contents(const file_handle srcHandle, const file_handle dstHandle);

@@ -39,7 +39,7 @@ void kpal_apply_palette(const uint paletteIdx)
         const file_handle rallyeExeHandle = kf_open_file("RALLYE.EXE", "rb");
         const u32 paletteExeOffset = (0x202d6 + (paletteIdx * 3 * NUM_COLORS_IN_PALETTE));
 
-        kf_seek(paletteExeOffset, rallyeExeHandle);
+        kf_set_cursor(paletteExeOffset, rallyeExeHandle);
         kf_read_bytes(palette, NUM_ELEMENTS(palette), rallyeExeHandle);
 
         for (i = 0; i < NUM_COLORS_IN_PALETTE; i++)

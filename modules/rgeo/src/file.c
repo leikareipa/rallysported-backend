@@ -171,9 +171,9 @@ void kf_jump(const i32 posDelta, const file_handle handle)
     return;
 }
 
-/* Seeks to the given byte position. The position is relative to the start of
+/* Sets the file's cursor to the given byte position, relative to the start of
  * the file.*/
-void kf_seek(const u32 pos, const file_handle handle)
+void kf_set_cursor(const u32 pos, const file_handle handle)
 {
     k_assert(kf_is_valid_handle(handle), "Was asked to seek with an inactive file handle.");
 
