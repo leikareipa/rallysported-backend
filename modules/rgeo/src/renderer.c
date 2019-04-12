@@ -34,7 +34,7 @@ static int ORIGINAL_VIDEO_MODE = 3;
 /* Set to true if we're in VGA mode 13h; otherwise false.*/
 static int IN_MODE_13H = 0;
 
-int current_video_mode(void)
+int kr_current_video_mode(void)
 {
     union REGS regs;
     regs.h.ah = 0xf;
@@ -68,7 +68,7 @@ void kr_draw_pala(const uint palaIdx)
 /* Switch to VGA mode 13h. Returns true if succeeds, false otherwise.*/
 int kr_enter_video_mode_13(void)
 {
-    const int videoModeNow = current_video_mode();
+    const int videoModeNow = kr_current_video_mode();
     k_assert((videoModeNow != 0x13), "Trying to enter mode 13h from mode 13h.");
 
     ORIGINAL_VIDEO_MODE = videoModeNow;
@@ -80,7 +80,7 @@ int kr_enter_video_mode_13(void)
 
         int86(0x10, &regs, &regs);
 
-        IN_MODE_13H = (current_video_mode() == 0x13);
+        IN_MODE_13H = (kr_current_video_mode() == 0x13);
     }
 
     return IN_MODE_13H;
@@ -96,7 +96,7 @@ int kr_leave_video_mode_13h(void)
 
     int86(0x10, &regs, &regs);
 
-    IN_MODE_13H = (current_video_mode() == 0x13);
+    IN_MODE_13H = (kr_current_video_mode() == 0x13);
     
-    return (current_video_mode() == ORIGINAL_VIDEO_MODE);
+    return (kr_current_video_mode() == ORIGINAL_VIDEO_MODE);
 }

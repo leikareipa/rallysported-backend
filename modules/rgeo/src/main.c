@@ -14,7 +14,6 @@
 #include "file.h"
 
 int test_file_c(void);
-int test_palette_c(void);
 int test_project_c(void);
 
 void initialize_program(void)
@@ -27,6 +26,7 @@ void initialize_program(void)
 /* Asks each relevant unit to release its allocated memory, etc.*/
 void release_program(void)
 {
+    kr_leave_video_mode_13h();
     kp_release_palat_data();
 
     return;
@@ -37,17 +37,17 @@ int main(int argc, char **argv)
     initialize_program();
     
     /*printf("Testing file.c... %s\n", test_file_c()? "Passes." : "FAILS!");
-    printf("Testing palette.c... %s\n", test_palette_c()? "Passes." : "FAILS!");
     printf("Testing project.c... %s\n", test_project_c()? "Passes." : "FAILS!");*/
-
-    /*kproj_create_project_for_track(1, "HELLO");*/
-    kproj_load_data_of_project("HELLO");
 
     /* Test rendering.*/
     {
+        kproj_load_data_of_project("HELLO");
+
         kr_enter_video_mode_13();
+        kpal_apply_palette(0);
+
         kr_draw_pala(3);
-        for (;;){}
+        getchar();
     }
 
     release_program();
@@ -65,19 +65,6 @@ int test_project_c(void)
 
     if (kproj_create_project_for_track(KEXE_NUM_TRACKS+1, "YYYYYYYY")) return 0; /* Track index out of bounds.*/
     if (kproj_create_project_for_track(KEXE_NUM_TRACKS, "YYYYYYYYY")) return 0; /* Invalid track name (too long).*/
-
-    return 1;
-}
-
-int test_palette_c(void)
-{
-    /* The first two colors (RGB) of Rally-Sport's palette #1.*/
-    const u8 referenceBytes[6] = {0, 0, 0, 0x2, 0x10, 0x4};
-
-    /* Load Rally-Sport's palette #1.*/
-    kpal_initialize_palette(0);
-
-    if (memcmp(kpal_palette(), referenceBytes, 6) != 0) return 0;
 
     return 1;
 }

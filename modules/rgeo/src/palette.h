@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-void kpal_initialize_palette(const uint paletteIdx);
-const u8* kpal_palette(void);
+void kpal_apply_palette(const uint paletteIdx);
 
 #endif
