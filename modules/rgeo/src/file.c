@@ -214,3 +214,33 @@ void kf_write_bytes(const u8 *const src, const u32 len, const file_handle handle
 
     return;
 }
+
+/* Returns true if the unit appears to be functioning correctly, otherwise false.*/
+#include <string.h>
+#include "exe_info.h"
+int kf_test(void)
+{
+    const file_handle fh = kf_open_file("RALLYE.EXE", "rb+");
+    
+    /* Test whether a file of the correct size was opened.*/
+    if (!kf_is_valid_handle(fh) || kf_file_size(fh) != kexe_rallye_executable_file_size())
+    {
+        return 0;
+    }
+
+    /* Test whether we can properly read data from the file.*/
+    {
+        u8 referenceBytes[4] = {0x4d, 0x5a, 0x4c, 0x1};
+        u8 bytes[4];
+
+        kf_read_bytes(bytes, 4, fh);
+        kf_close_file(fh);
+
+        if (memcmp(bytes, referenceBytes, 4) != 0)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}

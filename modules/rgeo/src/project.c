@@ -187,3 +187,17 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
 
     return 1;
 }
+
+/* Returns true if the unit appears to be functioning correctly, otherwise false.*/
+int kproj_test(void)
+{
+    if (!kproj_is_valid_project_name("VALIDNAM")) return 0; /* A valid name.*/
+    if (kproj_is_valid_project_name("V LIDNAM")) return 0; /* Spaces aren't allowed.*/
+    if (kproj_is_valid_project_name("V4L1DN4M")) return 0; /* Numbers aren't allowed.*/
+    if (kproj_is_valid_project_name("NOTAVALIDNAME")) return 0; /* Too long.*/
+
+    if (kproj_create_project_for_track(KEXE_NUM_TRACKS+1, "YYYYYYYY")) return 0; /* Track index out of bounds.*/
+    if (kproj_create_project_for_track(KEXE_NUM_TRACKS, "YYYYYYYYY")) return 0; /* Invalid track name (too long).*/
+
+    return 1;
+}

@@ -66,7 +66,7 @@ void kr_draw_pala(const uint palaIdx)
 }
 
 /* Switch to VGA mode 13h. Returns true if succeeds, false otherwise.*/
-int kr_enter_video_mode_13(void)
+int kr_enter_video_mode_13h(void)
 {
     const int videoModeNow = kr_current_video_mode();
     k_assert((videoModeNow != 0x13), "Trying to enter mode 13h from mode 13h.");
