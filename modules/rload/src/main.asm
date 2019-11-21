@@ -269,7 +269,8 @@ segment @BASE_DATA
     track_id db 0                               ; which track we have (0-7).
     palat_id db 0                               ; which palat file we use (0-1).
     num_object_types db 16                      ; how many different objects (3d track props) there are in the game.
-    num_objects_on_track db 11,1,4,14,2,1,13,12 ; how many objects there are on the given track (tracks 0-7).
+    max_num_objects_on_track db 14
+    num_objects_on_track db 1                   ; how many objects there are on the current track. always at least 1 (the finish line).
     track_palette_id db 0,0,0,0,1,2,0,3         ; which of the game's four palettes the given track uses.
     palette_offset dd 202d6h,20336h,20396h,203f6h            ; the byte offset at which the xth palette begins in RALLYE.EXE.
     palette_offset_valikko dd 23e37h,23e97h,23ef7h,23f57h    ; the byte offset at which the xth palette begins in VALIKKO.EXE.

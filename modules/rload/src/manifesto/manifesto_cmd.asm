@@ -221,9 +221,8 @@ Command_2_SET_NUM_OBJECTS:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; make sure the number of objects to be set is within a valid range (1 to n, where n is the number of objects on this track by default).
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    movzx bx,byte [track_id]
-    mov ah,byte [num_objects_on_track+bx]
-    cmp [manifesto_cmd+1],ah                ; make sure we're not trying to set the number of objects higher than the default.
+    mov al,[max_num_objects_on_track]
+    cmp [manifesto_cmd+1],al
     ja .param_range_is_bad
     cmp [manifesto_cmd+1],1
     jl .param_range_is_bad
@@ -371,8 +370,7 @@ Command_3_ADD_OBJECT:
     movzx ebx,[track_id]
     lea di,[object_block_offs+(ebx*4)]      ; di = address in the block of offset addresses to the starting byte of this track's offset.
     mov ebx,dword [di]                      ; ebx now points to the first byte in the game executable that defines the track's objects.
-    movzx di,[track_id]
-    movzx eax,[num_objects_on_track+di]     ; eax now gives the number of objects on this track.
+    movzx eax,[num_objects_on_track]
     mov cl,12                               ; the number of bytes in the object header.
     mul cl
     add ebx,eax                             ; ebx now points to the last byte in this track's object block.
@@ -392,14 +390,12 @@ Command_3_ADD_OBJECT:
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; write the new data into ~~LIKKO.EXE.
-    ;;; FIXME: this doesn't work at the moment, so it's been disabled.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; find the last byte in this track's object block.
     movzx ebx,[track_id]
     lea di,[object_block_offs_valikko+(ebx*4)] ; di = address in the block of offset addresses to the starting byte of this track's offset.
     mov ebx,dword [di]                      ; ebx now points to the first byte in the game executable that defines the track's objects.
-    movzx di,[track_id]
-    movzx eax,[num_objects_on_track+di]     ; eax now gives the number of objects on this track.
+    movzx eax,[num_objects_on_track]
     mov cl,12                               ; the number of bytes in the object header.
     mul cl
     add ebx,eax                             ; ebx now points to the last byte in this track's object block.
@@ -420,13 +416,12 @@ Command_3_ADD_OBJECT:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; increase the track's object count by one.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    movzx bx,[track_id]
-    mov al,[num_objects_on_track+bx]
+    mov al,[num_objects_on_track]
     inc al
-    cmp al,14                               ; make sure we're not adding too many new objects, seeing as how their data overwrites subsequent bytes in the executable.
+    mov [num_objects_on_track],al
+    cmp al,[max_num_objects_on_track]       ; make sure we're not adding too many new objects, seeing as how their data overwrites subsequent bytes in the executable.
                                             ; FIXME: for the last track (#8) there may be room in the executable for only about six new objects.
     jg .param_range_is_bad
-    mov [num_objects_on_track+bx], byte al
 
     ; patch the count into ~~LLYE.EXE.
     mov [file_buffer], byte al
@@ -500,8 +495,7 @@ Command_4_CHANGE_OBJECT_TYPE:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; make sure the target object id and the new object type are within valid ranges.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    movzx bx,byte [track_id]
-    mov ah,byte [num_objects_on_track+bx]
+    mov ah,byte [num_objects_on_track]
     cmp [manifesto_cmd+1],ah                ; make sure the object id doesn't point to an object that doesn't exist on this track.
     jg .param_range_is_bad
     sub [manifesto_cmd+1],1                 ; convert target id to 0-indexed.
@@ -614,8 +608,7 @@ Command_5_MOVE_OBJECT:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; make sure the target object id and the new object type are within valid ranges.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    movzx bx,byte [track_id]
-    mov ah,byte [num_objects_on_track+bx]
+    mov ah,byte [num_objects_on_track]
     cmp [manifesto_cmd+1],ah                ; make sure the object id doesn't point to an object that doesn't exist on this track.
     jg .param_range_is_bad
     sub [manifesto_cmd+1],1                 ; convert target id to 0-indexed.
