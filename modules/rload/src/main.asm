@@ -11,7 +11,7 @@
 ; constants.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DEBUG_ENABLED               = 0             ; set to 1 to enable certain debug features.
-LOADER_MAJOR_VERSION        = 4             ; the loader's major version number. this will be matched against the version required by the given track.
+LOADER_MAJOR_VERSION        = 5             ; the loader's major version number. this will be matched against the version required by the given track.
 BASE_MEM_REQUIRED           = 80            ; how much base memory (KB) the program needs. if the user has less, the program exits.
 MAX_MANIFESTO_PARAMS        = 10            ; how many parameters (counting the command itself) a manifesto command line can have.
 FILE_BUFFER_SIZE            = 53248         ; the size of the file buffer (in bytes), used when relocating disk data.
@@ -270,7 +270,7 @@ segment @BASE_DATA
     palat_id db 0                               ; which palat file we use (0-1).
     num_object_types db 16                      ; how many different objects (3d track props) there are in the game.
     max_num_objects_on_track db 14
-    num_objects_on_track db 1                   ; how many objects there are on the current track. always at least 1 (the finish line).
+    num_objects_on_track db 0                   ; how many objects there are on the current track.
     track_palette_id db 0,0,0,0,1,2,0,3         ; which of the game's four palettes the given track uses.
     palette_offset dd 202d6h,20336h,20396h,203f6h            ; the byte offset at which the xth palette begins in RALLYE.EXE.
     palette_offset_valikko dd 23e37h,23e97h,23ef7h,23f57h    ; the byte offset at which the xth palette begins in VALIKKO.EXE.
