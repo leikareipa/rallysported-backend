@@ -28,10 +28,10 @@ Command_0_REQUIRE:
     .param_num_is_good:
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ; make sure the track doesn't require a loader version newer than what we have.
+    ; make sure the loader version required by the track is compatible with this version of the loader. 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     cmp byte [manifesto_cmd+3],LOADER_MAJOR_VERSION
-    jle .version_is_good
+    je .version_is_good                     ; normally, we might compare with <=, but this version of the loader is not backwards-compatible.
     mov [err_manifesto_additional],err_manifesto_fail_version
     jmp .exit_fail
     .version_is_good:                       ; we've got a loader version compatible with this track.

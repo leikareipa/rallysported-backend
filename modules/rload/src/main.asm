@@ -329,7 +329,8 @@ segment @BASE_DATA
     err_manifesto_additional dw err_manifesto_general               ; a pointer to an additional error message string relating to manifesto parsing errors.
     err_manifesto_fail db "ERROR: Failed to apply the manifesto. Exiting.",0ah,0dh,'$'
     err_manifesto_fail_version db "The track is incompatible with this version of the loader. You may need to",0ah,0dh
-                               db "update the loader to a newer version.",0ah,0dh,'$'
+                               db "exchange the loader for a newer or older version, or re-save the track using",0ah,0dh
+                               db "a compatible version of RallySportED.",0ah,0dh,'$'
     err_manifesto_parameters db "Encountered an unexpected number of parameters for a command in the manifesto",0ah,0dh
                              db "file. Check the file for typos, and if necessary, refer to RallySportED's",0ah,0dh
                              db "readme.txt for more info on the manifesto's format.",0ah,0dh,'$'
