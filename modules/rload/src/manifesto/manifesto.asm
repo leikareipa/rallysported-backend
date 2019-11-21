@@ -81,24 +81,8 @@ Apply_Manifesto:
 
         .test_3:
         cmp al,3
-        jne .test_4
-        call Command_3_ADD_OBJECT
-        cmp al,0
-        je .exit_fail
-        jmp .do_next_command
-
-        .test_4:
-        cmp al,4
-        jne .test_5
-        call Command_4_CHANGE_OBJECT_TYPE
-        cmp al,0
-        je .exit_fail
-        jmp .do_next_command
-
-        .test_5:
-        cmp al,5
         jne .test_10
-        call Command_5_MOVE_OBJECT
+        call Command_3_ADD_OBJECT
         cmp al,0
         je .exit_fail
         jmp .do_next_command
