@@ -86,17 +86,6 @@ Parse_Lap_Dump:
         jmp .next_block
 
         .go_on:
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ; skip every other checkpoint, so turns are a bit smoother.
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        cmp byte[tmp],1
-        je .l2
-        mov byte[tmp],1
-        jmp .next_block
-
-        .l2:
-        mov byte[tmp],0
-
         mov al,[file_buffer+si]                 ; x least significant.
         mov [file_buffer+di],al
 
@@ -134,10 +123,8 @@ Parse_Lap_Dump:
         jmp .parse
 
     .done:
-   ; sub di,18                               ; don't save the last few checkpoints.
     mov dword [file_buffer+di-8],0ffffffffh   ; mark the end of the lap.
     mov dword [file_buffer+di-4],0ffffffffh
-    ;add di,8
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; set to skip the first few checkpoints, since these would have 0 speed.
