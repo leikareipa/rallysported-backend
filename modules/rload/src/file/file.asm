@@ -290,7 +290,7 @@ Duplicate_File_Data:
 ;;; DESTROYS:
 ;;;     (- unknown)
 ;;; RETURNS:
-;;;     - al set to 1 if we succeeded in duplicating the file, 0 otherwise.
+;;;     - al set to 1 if we succeeded, 0 otherwise.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Extract_Project_Files:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -366,7 +366,7 @@ Extract_Project_Files:
 ;;; DESTROYS:
 ;;;     (- unknown)
 ;;; RETURNS:
-;;;     - al set to 1 if we succeeded in duplicating the file, 0 otherwise.
+;;;     - al set to 1 if we succeeded, 0 otherwise.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Extract_Project_File:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -387,20 +387,31 @@ Extract_Project_File:
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
     mov [fh_temp],ax                        ; store the file handle.
 
-    mov dx,file_buffer
-
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; read the length of the data from the project's .dta file.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     mov bx,[fh_project_file]
+    mov dx,file_buffer
     mov ah,3fh
     mov cx,4                                ; 4 bytes == long int.
     int 21h
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
-    test dword [file_buffer],0ffff0000h     ; make sure the data length isn't >ffffh.
-    jnz .exit_fail
 
-    ;mov dword[file_buffer],0ff00h
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; the file can theoretically have a data length of > 64k, but we can only read 64k of
+    ; it at most. we'll make a note if the data overflows the 64k boundary, so we'll read
+    ; up to 64k and seek forward past the rest.
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    .numOverflowBytes dw ?
+    mov [.numOverflowBytes],0
+    mov ecx,dword [file_buffer]
+    sub ecx,0ffffh
+    js .extract                              ; if the result is negative, the data don't overflow 64k.
+    mov [.numOverflowBytes],cx
+    mov dword [file_buffer],0ffffh           ; limit data length to 64k max, so we won't attempt to read past it.
+
+    .extract:
+
     mov si,word [file_buffer]
     mov di,FILE_BUFFER_SIZE
     .read_write:
@@ -418,7 +429,7 @@ Extract_Project_File:
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         mov bx,[fh_project_file]            ; file handle.
         mov ah,3fh
-        mov cx,di                           ; read at most as many bytes as can fit into our memory buffer, but no more than the length of the file we want.
+        mov cx,di                           ; read at most as many bytes as can fit into our memory buffer, but no more than the remaining length of data we want.
         int 21h
         jc .exit_fail                       ; error-checking (the cf flag will be set by int 21h if there was an error).
 
@@ -439,6 +450,16 @@ Extract_Project_File:
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         cmp ax,FILE_BUFFER_SIZE
         je .read_write                      ; read until we've reached the end of the file.
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; seek forward past any data that overflows the 64k boundary.
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    mov bx,[fh_project_file]
+    mov cx,0                                ; cx = highest bits of the offset.
+    mov dx,[.numOverflowBytes]              ; dx = lowest bits of the offset.
+    mov ax,4201h                            ; seek from current position.
+    int 21h                                 ; seek.
+    jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
 
     jmp .exit_success
 
