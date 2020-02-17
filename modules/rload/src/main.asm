@@ -342,7 +342,7 @@ segment @BASE_DATA
     err_bad_cmd_line db "ERROR: Malformed command line argument. Exiting.",0ah,0dh,"$"
 
     ; info messages.
-    str_cmd_argument_info db "RallySportED Loader v5 by Tarpeeksi Hyvae Soft.",0ah,0dh
+    str_cmd_argument_info db "RallySportED Loader v5.1 by Tarpeeksi Hyvae Soft.",0ah,0dh
                           db "Expected command-line parameters: <track_name>",0ah,0dh
                           db "The track name can be of up to eight ASCII characters from A-Z.",0ah,0dh,"$"
 

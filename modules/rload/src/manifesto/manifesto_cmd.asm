@@ -343,16 +343,7 @@ Command_3_ADD_OBJECT:
     mul cl
     mov si,ax                               ; si is now the starting position for our object header.
 
-    ; get the desired object type's id string.
-    xor bx,bx
-    mov ecx,6
-    .type_string:
-        mov al,[object_header+si+bx]
-        mov [file_buffer+bx],al
-        inc bx
-        loop .type_string
-
-    ; set the object's position to the user-supplied coordinates.
+    ; insert the user-supplied coordinates into the object's position bytes.
     mov al,[manifesto_cmd+4]                ; local x.
     mov [file_buffer+6],al
     mov al,[manifesto_cmd+2]                ; global x.
@@ -366,6 +357,14 @@ Command_3_ADD_OBJECT:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; write the new data into ~~LLYE.EXE.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; insert the desired object type's id string.
+    xor bx,bx
+    mov ecx,6
+    .type_string_rallye:
+        mov al,[object_header+si+bx]
+        mov [file_buffer+bx],al
+        inc bx
+        loop .type_string_rallye
     ; find the last byte in this track's object block.
     movzx ebx,[track_id]
     lea di,[object_block_offs+(ebx*4)]      ; di = address in the block of offset addresses to the starting byte of this track's offset.
@@ -385,12 +384,20 @@ Command_3_ADD_OBJECT:
     lea dx,[file_buffer]                    ; get the address to the target object type's header.
     mov cx,12                               ; write 12 bytes, i.e. the entire object header.
     mov ah,40h
-    int 21h                                 ; write the new maasto index.
+    int 21h                                 ; write.
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; write the new data into ~~LIKKO.EXE.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; insert the desired object type's id string.
+    xor bx,bx
+    mov ecx,6
+    .type_string_valikko:
+        mov al,[object_header_valikko+si+bx]
+        mov [file_buffer+bx],al
+        inc bx
+        loop .type_string_valikko
     ; find the last byte in this track's object block.
     movzx ebx,[track_id]
     lea di,[object_block_offs_valikko+(ebx*4)] ; di = address in the block of offset addresses to the starting byte of this track's offset.
@@ -410,7 +417,7 @@ Command_3_ADD_OBJECT:
     lea dx,[file_buffer]                    ; get the address to the target object type's header.
     mov cx,12                               ; write 12 bytes, i.e. the entire object header.
     mov ah,40h
-    ;int 21h                                 ; write the new maasto index.
+    int 21h                                 ; write.
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -439,11 +446,10 @@ Command_3_ADD_OBJECT:
     mov dx,file_buffer
     mov cx,1                                ; write 1 byte.
     mov ah,40h
-    int 21h                                 ; write the new maasto index.
+    int 21h                                 ; write.
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
 
     ; patch the count into ~~LIKKO.EXE.
-    ;;; FIXME: this doesn't work at the moment, so it's been disabled.
     movzx ebx,[track_id]
     lea di,[object_block_offs_valikko+(ebx*4)] ; di = address in the block of offset addresses to the starting byte of this track's offset.
     mov ebx,dword [di]                      ; ebx now points to the first byte in the game executable that defines the track's objects.
@@ -458,7 +464,7 @@ Command_3_ADD_OBJECT:
     mov dx,file_buffer
     mov cx,1                                ; write 1 byte.
     mov ah,40h
-    ;int 21h                                 ; write the new maasto index.
+    int 21h                                 ; write.
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
 
     jmp .exit_success
