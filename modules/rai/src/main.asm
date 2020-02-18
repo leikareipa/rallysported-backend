@@ -133,7 +133,7 @@ segment @BASE_DATA
 
     ; misc.
     tmp db 0,0,0,0,0,0
-    record_message db "recording...",0          ; message show on screen when recording the cpu lap.
+    record_message db "Recording...",0          ; message show on screen when recording the cpu lap.
     record_message_len = $ - record_message
 
     file_buffer rb FILE_BUFFER_SIZE             ; we load data from disk into this buffer.

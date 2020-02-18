@@ -1,3 +1,7 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Patches RALLYE.EXE to dump the player's ghost lap into a file on disk when the program exits
+;;; (i.e. when the player exits the race).
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Patch_Rallye_Exe:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; open ~~LLYE.EXE.
@@ -5,7 +9,7 @@ Patch_Rallye_Exe:
     xor cx,cx
     mov dx,fn_sb_rallye_exe                     ; file name.
     mov ah,3dh                                  ; set to open.
-    mov al,0010b                                    ; read/write.
+    mov al,0010b                                ; read/write.
     int 21h                                     ; do it.
     jc .exit_fail                               ; error-checking (the cf flag will be set by int 21h if there was an error).
     mov [fh_sb_rallye_exe],ax
@@ -164,7 +168,7 @@ Apply_Text_Patch:
     mov bx,[fh_sb_rallye_exe]
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ; set to always show the message.
+    ; patch ~~LLYE.EXE to always show the message.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     mov byte[file_buffer],82h
     mov cx,0
@@ -179,7 +183,7 @@ Apply_Text_Patch:
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ; put the message in the bottom of the screen.
+    ; patch ~~LLYE.EXE to show the message at the bottom of the screen.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     mov byte[file_buffer],0bah
     mov cx,0
@@ -193,9 +197,9 @@ Apply_Text_Patch:
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ; set the message color.
+    ; patch ~~LLYE.EXE to set the message color.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    mov byte[file_buffer],015h
+    mov byte[file_buffer],16
     mov cx,0
     mov dx,7
     mov ax,4201h
@@ -207,7 +211,7 @@ Apply_Text_Patch:
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ; write the message we want to display.
+    ; patch ~~LLYE.EXE to with the message string we want to display.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     mov ebx,13e41h
     mov dx,bx
