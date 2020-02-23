@@ -402,12 +402,11 @@ Extract_Project_File:
     ; it at most. we'll make a note if the data overflows the 64k boundary, so we'll read
     ; up to 64k and seek forward past the rest.
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    .numOverflowBytes dw ?
-    mov [.numOverflowBytes],0
+    mov [tmp],0                              ; tmp will hold the number of overflow bytes.
     mov ecx,dword [file_buffer]
     sub ecx,0ffffh
     js .extract                              ; if the result is negative, the data don't overflow 64k.
-    mov [.numOverflowBytes],cx
+    mov word [tmp],cx
     mov dword [file_buffer],0ffffh           ; limit data length to 64k max, so we won't attempt to read past it.
 
     .extract:
@@ -456,7 +455,7 @@ Extract_Project_File:
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     mov bx,[fh_project_file]
     mov cx,0                                ; cx = highest bits of the offset.
-    mov dx,[.numOverflowBytes]              ; dx = lowest bits of the offset.
+    mov dx,word [tmp]                       ; dx = lowest bits of the offset.
     mov ax,4201h                            ; seek from current position.
     int 21h                                 ; seek.
     jc .exit_fail                           ; error-checking (the cf flag will be set by int 21h if there was an error).
