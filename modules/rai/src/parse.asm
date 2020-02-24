@@ -164,13 +164,11 @@ Parse_Lap_Dump:
         mov cx,4                                ; 4 bytes == long int.
         int 21h
         jc .seek_failed                         ; error-checking (the cf flag will be set by int 21h if there was an error).
-        test dword [file_buffer],0ffff0000h     ; make sure the data length isn't >ffffh.
-        jnz .seek_failed
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ; seek to the end of that file.
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        mov cx,0
+        mov cx,word [file_buffer+2]
         mov dx,word [file_buffer]
         mov ax,4201h                            ; set to move file position, offset from current position.
         int 21h                                 ; move file position.
