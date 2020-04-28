@@ -11,6 +11,7 @@ src/common/genstack.c
 src/assets/mesh.c
 src/assets/texture.c
 src/assets/ground.c
+src/common/input.c
 "
 
 wine "$DMC_PATH/bin/dmc.exe" $SOURCE_FILES $BUILD_OPTIONS -Isrc/ -I$DMC_PATH/include

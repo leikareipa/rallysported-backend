@@ -31,8 +31,8 @@ struct track_prop_s
 
 // The number of track tiles vertically and horizontally to display in the
 // ground view.
-#define GROUND_VIEW_WIDTH 23
-#define GROUND_VIEW_HEIGHT 24
+#define GROUND_VIEW_WIDTH 15
+#define GROUND_VIEW_HEIGHT 26
 
 // The top left position on a track from which the view begins (being X tiles
 // to the left and Z tiles toward the bottom from this position).

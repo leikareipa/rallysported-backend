@@ -1,7 +1,7 @@
 /*
  * 2020 Tarpeeksi Hyvae Soft
  * 
- * Software: Render test for replicating Rally-Sport's rendering.
+ * Software: RallySportED-DOS / RGEO
  * 
  */
 
@@ -15,6 +15,7 @@
 #include "renderer/renderer.h"
 #include "renderer/polygon.h"
 #include "common/globals.h"
+#include "common/input.h"
 
 int main(void)
 {
@@ -27,20 +28,33 @@ int main(void)
     time_t startTime = time(NULL);
     unsigned numFrames = 0;
 
+#if MSDOS
     while ((time(NULL) - startTime) < 6)
+#else
+    while (1)
+#endif
     {
-        krender_clear_surface();
+        kinput_update_input();
+
+        if (kinput_is_key_down(VIRTUAL_KEY_EXIT)) break;
         
         // Move the camera, for testing purposes.
         {
             static float px = 1;
             static float pz = 1;
+            const float movementSpeedX = 0.4;
+            const float movementSpeedZ = 0.5;
 
-            pz += 0.25;
-        
+            if (kinput_is_key_down(VIRTUAL_KEY_RIGHT)) px += movementSpeedX;
+            if (kinput_is_key_down(VIRTUAL_KEY_LEFT))  px -= movementSpeedX;
+            if (kinput_is_key_down(VIRTUAL_KEY_UP))    pz -= movementSpeedZ;
+            if (kinput_is_key_down(VIRTUAL_KEY_DOWN))  pz += movementSpeedZ;
+
             kground_set_ground_view_offset(px, pz);
             kground_regenerate_ground_view();
         }
+
+        krender_clear_surface();
 
         // Render the ground.
         {

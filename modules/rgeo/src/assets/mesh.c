@@ -1,7 +1,7 @@
 /*
  * 2020 Tarpeeksi Hyvae Soft
  * 
- * Software: Render test for replicating Rally-Sport's rendering.
+ * Software: RallySportED-DOS / RGEO
  * 
  * Handles loading and serving Rally-Sport's mesh assets.
  * 

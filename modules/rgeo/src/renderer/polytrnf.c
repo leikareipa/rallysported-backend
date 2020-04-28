@@ -1,7 +1,7 @@
 /*
  * 2020 Tarpeeksi Hyvae Soft
  * 
- * Software: Render test for replicating Rally-Sport's rendering.
+ * Software: RallySportED-DOS / RGEO
  * 
  * Transforms polygons.
  * 
@@ -19,8 +19,10 @@ void krender_transform_poly(struct polygon_s *const poly)
 
     for (unsigned i = 0; i < poly->numVerts; i++)
     {
-        poly->verts[i].x = floor(screenWidthHalf + ((CAMERA_POS.x + poly->verts[i].x - screenWidthHalf) / (CAMERA_POS.z + poly->verts[i].z / 575.0)));
-        poly->verts[i].y = floor((CAMERA_POS.y + poly->verts[i].y) / (CAMERA_POS.z + poly->verts[i].z / 575.0));
+        const float z = (CAMERA_POS.z + (poly->verts[i].z / 575.0));
+
+        poly->verts[i].x = floor(screenWidthHalf + ((CAMERA_POS.x + poly->verts[i].x - screenWidthHalf) / z));
+        poly->verts[i].y = floor((CAMERA_POS.y + poly->verts[i].y) / z);
     }
 
     // Find whether at least one of the polygon's transformed vertices is inside

@@ -1,12 +1,12 @@
 /*
  * 2020 Tarpeeksi Hyvae Soft
  * 
- * Software: Render test for replicating Rally-Sport's rendering.
+ * Software: RallySportED-DOS / RGEO
  * 
  */
 
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MESH_H
+#define MESH_H
 
 #include "renderer/polygon.h"
 
