@@ -10,7 +10,7 @@
  */
 
 #include "exe_info.h"
-#include "common.h"
+#include "common/globals.h"
 #include "types.h"
 
 #define TEST_BOUNDS(trackIdx) k_assert(((trackIdx) < 8), "Attempting to access executable information out of bounds.")

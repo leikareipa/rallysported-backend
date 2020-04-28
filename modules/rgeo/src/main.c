@@ -1,51 +1,67 @@
 /*
- * 2019 Tarpeeksi Hyvae Soft
+ * 2020 Tarpeeksi Hyvae Soft
+ * 
+ * Software: Render test for replicating Rally-Sport's rendering.
  * 
  */
 
+#include <assert.h>
 #include <stdio.h>
-#include "renderer.h"
-#include "palette.h"
-#include "project.h"
-#include "common.h"
-#include "palat.h"
-#include "file.h"
+#include <time.h>
+#include <math.h>
+#include "common/genstack.h"
+#include "assets/mesh.h"
+#include "assets/ground.h"
+#include "renderer/renderer.h"
+#include "renderer/polygon.h"
+#include "common/globals.h"
 
-void initialize_program(void)
+int main(void)
 {
-    /* TODO.*/
+    ktexture_initialize_textures();
+    kmesh_initialize_meshes();
+    kground_initialize_ground(3);
+    krender_initialize();
+    krender_use_palette(0);
 
-    return;
-}
+    time_t startTime = time(NULL);
+    unsigned numFrames = 0;
 
-/* Asks each relevant unit to release its allocated memory, etc.*/
-void release_program(void)
-{
-    kr_leave_video_mode_13h();
-    kp_release_palat_data();
-
-    return;
-}
-
-int main(int argc, char **argv)
-{
-    /*printf("Testing file.c... %s\n", kf_test()? "Passes." : "FAILS!");
-    printf("Testing project.c... %s\n", kproj_test()? "Passes." : "FAILS!");*/
-
-    initialize_program();
-
-    /* Test rendering.*/
+    while ((time(NULL) - startTime) < 6)
     {
-        kproj_load_data_of_project("HELLO");
+        krender_clear_surface();
+        
+        // Move the camera, for testing purposes.
+        {
+            static float px = 1;
+            static float pz = 1;
+        
+            kground_update_ground_mesh(px, pz);
+            pz += 0.25;
+        }
 
-        kr_enter_video_mode_13h();
-        kpal_apply_palette(0);
+        // Render the ground.
+        {
+            const struct kelpo_generic_stack_s *const groundMeshes = kground_ground_meshes();
 
-        kr_draw_pala(3);
-        getchar();
+            for (unsigned i = 0; i < groundMeshes->count; i++)
+            {
+                krender_draw_mesh(kelpo_generic_stack__at(groundMeshes, i), 1);
+            }
+        }
+
+        krender_flip_surface();
+
+        numFrames++;
     }
 
-    release_program();
-    DEBUG(("All done. Bye."));
+    DEBUG(("~%d FPS\n", (int)round(numFrames / (float)(time(NULL) - startTime))));
+    getchar();
+
+    kmesh_release_meshes();
+    ktexture_release_textures();
+    kground_release_ground();
+    krender_release();
+
     return 0;
 }

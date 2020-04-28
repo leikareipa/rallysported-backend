@@ -12,7 +12,7 @@
 #include "project.h"
 #include "varimaa.h"
 #include "maasto.h"
-#include "common.h"
+#include "common/globals.h"
 #include "palat.h"
 #include "file.h"
 
@@ -171,7 +171,7 @@ int kproj_create_project_for_track(const uint trackIdx, const char *const projec
 
         /* Create a default HITABLE.TXT file.*/
         {
-            #include "hitable.inc"
+            #include "assets/hitable.inc"
 
             file_handle fh = KF_INVALID_HANDLE;
 
