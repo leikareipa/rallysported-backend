@@ -3,12 +3,12 @@
  * 
  * Software: Render test for replicating Rally-Sport's rendering.
  * 
- * Represents a view (or "ground view") of a Rally-Sport track, including its
- * surface mesh (based on the track's MAASTO and VARIMAA data), any track props
- * (like trees and billboards), etc.
+ * A view of the ground of a Rally-Sport track. The ground is the track's surface
+ * as defined by the track's MAASTO (heightmap) and VARIMAA (tilemap) data, as
+ * well as any 3d track props on the ground.
  * 
- * The view is realized as a set of polygonal meshes, returned by
- * kground_ground_meshes().
+ * The view includes n track tiles in the horizontal and vertical directions, and
+ * any track props that are located on those tiles.
  * 
  */
 
@@ -29,14 +29,25 @@ struct track_prop_s
     int type;
 };
 
-// The number of surface tiles vertically and horizontally to display in the
+// The number of track tiles vertically and horizontally to display in the
 // ground view.
 #define GROUND_VIEW_WIDTH 23
 #define GROUND_VIEW_HEIGHT 24
 
+// The top left position on a track from which the view begins (being X tiles
+// to the left and Z tiles toward the bottom from this position).
+static int GROUND_VIEW_OFFSET_X = 0;
+static int GROUND_VIEW_OFFSET_Z = 0;
+
 // The dimensions, in world units, of a single tile in the surface mesh.
 #define SURFACE_MESH_TILE_WIDTH 128
 #define SURFACE_MESH_TILE_HEIGHT 128
+
+// The amount by which to offset the ground view's polygon vertices so as to
+// center the view on screen when rendered.
+static struct vector_s GROUND_VIEW_SCREEN_OFFSET = {-(((GROUND_VIEW_WIDTH / 2) - 1) * SURFACE_MESH_TILE_WIDTH),
+                                                    0,
+                                                    -700};
 
 // The height value of each corner point in the surface mesh.
 static int16_t *HEIGHTMAP;
@@ -59,12 +70,6 @@ static struct polygon_s *SURFACE_MESH_POLY_CACHE;
 #define MAX_NUM_PROPS 14 // How many props a track can have, at most.
 static uint16_t NUM_PROPS = 0; // How many props this track has. Must be a 2-byte variable.
 static struct track_prop_s* PROPS[MAX_NUM_PROPS];
-
-// The vertices of the ground view meshes will be offset by this amount on the
-// XYZ axes, so as to properly center them on the screen when rendered.
-static struct vector_s GROUND_VIEW_SCREEN_OFFSET = {-(((GROUND_VIEW_WIDTH / 2) - 1) * SURFACE_MESH_TILE_WIDTH),
-                                                    0,
-                                                    -700};
 
 // Convenience macro for querying the heightmap's value at the given XY
 // coordinates, with bounds-checking on the coordinate values.
@@ -107,12 +112,20 @@ int kground_height(void)
     return HEIGHTMAP_HEIGHT;
 }
 
-const struct kelpo_generic_stack_s* kground_ground_meshes(void)
+const struct kelpo_generic_stack_s* kground_ground_view(void)
 {
     return GROUND_VIEW_MESHES;
 }
 
-void kground_update_ground_mesh(const int viewOffsX, const int viewOffsZ)
+void kground_set_ground_view_offset(const int x, const int z)
+{
+    GROUND_VIEW_OFFSET_X = x;
+    GROUND_VIEW_OFFSET_Z = z;
+
+    return;
+}
+
+void kground_regenerate_ground_view(void)
 {
     kelpo_generic_stack__clear(GROUND_VIEW_MESHES);
 
@@ -124,8 +137,8 @@ void kground_update_ground_mesh(const int viewOffsX, const int viewOffsZ)
         {
             for (int x = 0; x < GROUND_VIEW_WIDTH; x++)
             {
-                const int tileX = (x + viewOffsX);
-                const int tileY = (z + viewOffsZ);
+                const int tileX = (x + GROUND_VIEW_OFFSET_X);
+                const int tileY = (z + GROUND_VIEW_OFFSET_Z);
 
                 // Center the mesh on screen.
                 const int vertX = ((x * SURFACE_MESH_TILE_WIDTH) + GROUND_VIEW_SCREEN_OFFSET.x);
@@ -255,8 +268,8 @@ void kground_update_ground_mesh(const int viewOffsX, const int viewOffsZ)
     // Add props.
     for (unsigned i = 0; i < NUM_PROPS; i++)
     {
-        const int meshX = (PROPS[i]->position.x - ((viewOffsX * SURFACE_MESH_TILE_WIDTH) - GROUND_VIEW_SCREEN_OFFSET.x));
-        const int meshZ = (PROPS[i]->position.z + (viewOffsZ * SURFACE_MESH_TILE_HEIGHT) + GROUND_VIEW_SCREEN_OFFSET.z);
+        const int meshX = (PROPS[i]->position.x - ((GROUND_VIEW_OFFSET_X * SURFACE_MESH_TILE_WIDTH) - GROUND_VIEW_SCREEN_OFFSET.x));
+        const int meshZ = (PROPS[i]->position.z + (GROUND_VIEW_OFFSET_Z * SURFACE_MESH_TILE_HEIGHT) + GROUND_VIEW_SCREEN_OFFSET.z);
         const int meshY = (PROPS[i]->position.y
                            ? PROPS[i]->position.y
                            : HEIGHT_AT(((int)PROPS[i]->position.x / SURFACE_MESH_TILE_WIDTH), (-(int)PROPS[i]->position.z / SURFACE_MESH_TILE_HEIGHT)));
@@ -418,8 +431,6 @@ void kground_initialize_ground(const unsigned groundIdx)
 
         kfile_close_file(rallyeHandle);
     }
-
-    kground_update_ground_mesh(3, 22);
 
     return;
 }

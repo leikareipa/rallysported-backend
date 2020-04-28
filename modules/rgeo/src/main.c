@@ -35,14 +35,16 @@ int main(void)
         {
             static float px = 1;
             static float pz = 1;
-        
-            kground_update_ground_mesh(px, pz);
+
             pz += 0.25;
+        
+            kground_set_ground_view_offset(px, pz);
+            kground_regenerate_ground_view();
         }
 
         // Render the ground.
         {
-            const struct kelpo_generic_stack_s *const groundMeshes = kground_ground_meshes();
+            const struct kelpo_generic_stack_s *const groundMeshes = kground_ground_view();
 
             for (unsigned i = 0; i < groundMeshes->count; i++)
             {
@@ -56,6 +58,8 @@ int main(void)
     }
 
     DEBUG(("~%d FPS\n", (int)round(numFrames / (float)(time(NULL) - startTime))));
+
+    printf("Press Enter to exit");
     getchar();
 
     kmesh_release_meshes();
