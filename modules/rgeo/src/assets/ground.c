@@ -32,7 +32,7 @@ struct track_prop_s
 // The number of track tiles vertically and horizontally to display in the
 // ground view.
 #define GROUND_VIEW_WIDTH 15
-#define GROUND_VIEW_HEIGHT 26
+#define GROUND_VIEW_HEIGHT 30
 
 // The top left position on a track from which the view begins (being X tiles
 // to the left and Z tiles toward the bottom from this position).
@@ -47,7 +47,7 @@ static int GROUND_VIEW_OFFSET_Z = 0;
 // center the view on screen when rendered.
 static struct vector_s GROUND_VIEW_SCREEN_OFFSET = {-(((GROUND_VIEW_WIDTH / 2) - 1) * SURFACE_MESH_TILE_WIDTH),
                                                     0,
-                                                    -700};
+                                                    -188};
 
 // The height value of each corner point in the surface mesh.
 static int16_t *HEIGHTMAP;
@@ -140,6 +140,8 @@ void kground_regenerate_ground_view(void)
                 const int tileX = (x + GROUND_VIEW_OFFSET_X);
                 const int tileY = (z + GROUND_VIEW_OFFSET_Z);
 
+                if (tileX < 0 || tileY < 0) continue;
+
                 // Center the mesh on screen.
                 const int vertX = ((x * SURFACE_MESH_TILE_WIDTH) + GROUND_VIEW_SCREEN_OFFSET.x);
                 const int vertZ = ((-z * SURFACE_MESH_TILE_HEIGHT) + GROUND_VIEW_SCREEN_OFFSET.z);
@@ -148,25 +150,25 @@ void kground_regenerate_ground_view(void)
 
                 // Back left.
                 groundPoly->verts[0].x = vertX;
-                groundPoly->verts[0].y = HEIGHT_AT(tileX, tileY);
+                groundPoly->verts[0].y = HEIGHT_AT(tileX, (tileY + 1));
                 groundPoly->verts[0].z = vertZ;
 
                 // Back right.
                 groundPoly->verts[1].x = (vertX + SURFACE_MESH_TILE_WIDTH);
-                groundPoly->verts[1].y = HEIGHT_AT((tileX + 1), tileY);
+                groundPoly->verts[1].y = HEIGHT_AT((tileX + 1), (tileY + 1));
                 groundPoly->verts[1].z = vertZ;
 
                 // Front left.
                 groundPoly->verts[2].x = vertX;
-                groundPoly->verts[2].y = HEIGHT_AT(tileX, (tileY - 1));
+                groundPoly->verts[2].y = HEIGHT_AT(tileX, tileY);
                 groundPoly->verts[2].z = (vertZ + SURFACE_MESH_TILE_HEIGHT);
 
                 // Front right.
                 groundPoly->verts[3].x = (vertX + SURFACE_MESH_TILE_WIDTH);
-                groundPoly->verts[3].y = HEIGHT_AT((tileX + 1), (tileY - 1));
+                groundPoly->verts[3].y = HEIGHT_AT((tileX + 1), tileY);
                 groundPoly->verts[3].z = (vertZ + SURFACE_MESH_TILE_HEIGHT);
 
-                const unsigned palaIdx = TILE_AT(tileX, (tileY - 1));
+                const unsigned palaIdx = TILE_AT(tileX, (tileY - 0));
                 groundPoly->texture = ktexture_pala_texture(palaIdx);
 
                 // Add a billboard tile, if any.

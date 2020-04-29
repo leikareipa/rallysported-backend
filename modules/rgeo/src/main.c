@@ -40,10 +40,14 @@ int main(void)
         
         // Move the camera, for testing purposes.
         {
-            static float px = 1;
+            static float px = 4;
             static float pz = 1;
             const float movementSpeedX = 0.4;
             const float movementSpeedZ = 0.5;
+            
+            #if MSDOS
+                pz += 0.9;
+            #endif
 
             if (kinput_is_key_down(VIRTUAL_KEY_RIGHT)) px += movementSpeedX;
             if (kinput_is_key_down(VIRTUAL_KEY_LEFT))  px -= movementSpeedX;
