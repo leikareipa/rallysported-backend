@@ -1,30 +1,19 @@
-# RallySportED-DOS
-Versions of [RallySportED](../../../rallysported)'s track, texture, and AI editors for DOS. These versions will run on 386/486-class hardware in DOS, and/or on modern systems under DOSBox and the like.
+# RallySportED's backend
 
-You'll find pre-compiled binaries of this code on [Tarpeeksi Hyvae Soft's website](http://www.tarpeeksihyvaesoft.com/soft/), along with more thorough instructions on usage.
+RallySportED is a cool asset editor for the classic MS-DOS-era racing game Rally-Sport. It lets you make new tracks etc.
 
-## Modules
-The DOS version of RallySportED is split into four different modules (or executables, if you like): `RGEO`, `RLOAD`, `RTEX`, and `RAI`. Each module serves a particular purpose in creating assets for Rally-Sport. You can learn more about them in brief, below.
+The backend of RallySportED consists of DOS-based tools to inject RallySportED-made content - e.g. tracks - into the game, as the game itself wasn't made to allow modding. So these tools are absolutely required to play someone's new Rally-Sport creations.
 
-**RGEO** &mdash; Track editor. Edit a track's heightmap and/or tilemap.
+You can find pre-compiled binaries of the RallySportED backend on [Tarpeeksi Hyvae Soft's website](https://www.tarpeeksihyvaesoft.com/). If you're not interested in the code, that's where you should be heading right now; otherwise, read on.
 
-RGEO features pseudo-3d rendering of Rally-Sport's heightmap (MAASTO files) and tilemap (VARIMAA files) track data, and will run on a 486-66 MHz CPU (Pentium 60+ recommended). The terrain can be raised, lowered, and painted with the game's textures to create entirely new tracks, or to just modify the existing ones. Written in C++, RGEO is the only module whose source code is currently not available in this repo.
+## The tools
 
-![A screenshot of the RGEO module](screenshots/rgeo.b9-dos.png)
+Two tools comprise the RallySportED backend:
+- RLOAD
+- RAI
 
-**[RTEX](modules/rtex/)** &mdash; Texture editor. Edit the game's track surface textures.
+The RLOAD tool, which you can find under the [rload/](./rload/) folder, is responsible for loading modded content into the game. It basically makes a copy of the Rally-Sport executable, modifies the copy to inject the new content, then runs Rally-Sport with the new content via the modified executable.
 
-Written in assembly and able to run on as little as a 16-MHz 386, RTEX lets you modify the textures with which Rally-Sport's track surfaces are painted. These are the textures stored in the game's PALAT files, in other words.
+The RAI tool, found under the [rai/](./rai/) folder, is for editing RallySportED-made tracks' AI opponents. With this tool, you race a lap around the given track and the tool saves your lap as the track AI's new driving line (AI in Rally-Sport is just a pre-determined racing line that the CPU driver sheepishly follows).
 
-![A screenshot of the RTEX module](screenshots/rtex.b9-dos.png)
-
-**[RAI](modules/rai/)** &mdash; AI editor. Change how the game's CPU opponent drives a particular track.
-
-A pretty cool module, it records a lap you drive around a track in Rally-Sport, and saves that as the track's AI opponent. In other words, the AI will from then on drive the track more or less as you did. You might use this tool primarily to create custom AI for your new tracks; but another cool use for it is to create AI opponents for existing tracks that give you just the right level of challenge (they'll drive like you do, so the races will be even, and you can make them a bit faster or slower by changing the game's difficulty level).
-
-**[RLOAD](modules/rload/)** &mdash; Track loader. Allows you to play your custom tracks in Rally-Sport.
-
-Once you've made a new track &ndash; or modified an existing one &ndash; load it into Rally-Sport using this module, and you're good to start playing it. A loader is required simply because the game hard-codes its assets, so its binary files need a bit of coaxing to accept custom content. The loader first makes copies of the relevant files, then modifies only the copies, so don't worry about original executable data being altered.
-
-## Building
-You'll find a readme file in each module's folder, containing instructions on how to build that module. Pretty much the only thing you need for any of them is the fasm assembler (it's free) and a simple command-line string.
+The backend's pre-compiled binary distribution, found on [Tarpeeksi Hyvae Soft's website](https://www.tarpeeksihyvaesoft.com/), comes with further instructions for using the RLOAD and RAI tools.
